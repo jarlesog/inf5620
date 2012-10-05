@@ -18,8 +18,14 @@ using namespace std;
 ofstream ofile;
 
 void interate_v(int,int, double, double, double, double, double *,double *,double *);
-void create_initial_v(int, double *);;
+void create_initial_v(int, int, double, double, double *, double *);
 void printToFile(int, char *, double *);
+
+
+double c(double, double);
+double f(double, double);
+double I(double, double);
+double V(double, double);
 
 int main(int argc, char* argv[])
 { 
@@ -57,8 +63,7 @@ int main(int argc, char* argv[])
   
 
   //Create the initial condition
-  create_initial_v(N, v_prev);
-  create_initial_v(N, v_now);
+  create_initial_v(Nx, Ny, dx, dy, v_now, V_prev);
 
   //Write the IC to a file 
   sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", N, M, 0*dt);
@@ -103,16 +108,17 @@ void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,doubl
   double cx_tmp = 2*dt*dt/((2+b*dt)*dx*dx);
   double cx_tmp = 2*dt*dt/((2+b*dt)*dy*dy);
   double cf_tmp = (2 + b*dt)/(2*dt*dt);
-  double c_damp = 2/(2+b*dt);
+  double c_damp = -2/(2+b*dt);
   double c_prev = b*dt/(2+b*dt);
 
   //Create/fill the v_new vector/matrix 
   //Denne for-loopen gaar kun igjennom de indre punktene
   for(int i = 1; i < Ny; i++){
     for(int j = 1; j < Nx; j++){
-      //double temp0 = C2*(v_now[i*(N)+j+1] + v_now[i*(N)+j-1] + v_now[(i-1)*(N)+j] + v_now[(i+1)*(N)+j] - 4*v_now[i*(N)+j]);
-      //double temp1 = 2*v_now[i*(N)+j] - v_prev[i*(N)+j]; 
-      v_next[i*(Nx+1)+j] = temp0+temp1;
+      double temp0 = cx_tmp*(c(i*dx+dx/2,j*dy)*(v_now[(i+1)*(Nx+1)+j] - v_now[i*(Nx+1)+j]) - c(i*dx-dx/2,j*dy)*(v_now[i*(Nx+1)+j] - v_now[(i-1)*(Nx+1)+j]));
+      double temp1 = cy_tmp*(c(i*dx,j*dy+dy/2)*(v_now[i*(Nx+1)+j+1]   - v_now[i*(Nx+1)+j]) - c(i*dx,j*dy-dy/2)*(v_now[i*(Nx+1)+j] - v_now[i*(Nx+1)+j-1]))  ;
+      double temp3 = cf_tmp*f(i*dx,j*dy) + c_prev*v_prev[i*(N+1)+j] + c_damp*(v_prev[i*(N+1)+j] - 2*v_now[i*(N+1)+j]);
+	v_next[i*(Nx+1)+j] = temp0+temp1+temp3;
       }
   }
   //Updateing the vectors/matrises(Change the pointer)						\
@@ -125,15 +131,15 @@ void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,doubl
 
 
 //Creats the initial condition
-void create_initial_v(int N, double *v_now)
+void create_initial_v(int Nx, int Ny, double dx, double dy,double *v_now, double *v_prev)
 {
-  double h = 1.0/(N-1);
-  for(int i = 0; i < N; i++){
-    for(int j = 0; j < N; j++){
-      if(i == 0 || i == N || j == 0 || j == N){
-	v_now[i*(N)+j] = 0;
-      }
-      v_now[i*(N)+j] = exp(-40*(pow((2*(i*h)-1.4),2) + pow((2*(j*h)-1),2)));
+  for(int i = 0; i < Ny+1; i++){
+    for(int j = 0; j < Nx+1; j++){
+      //if(i == 0 || i == N || j == 0 || j == N){
+	//v_now[i*(N)+j] = 0;
+	//}
+      v_now[i*(Nx+1)+j] = I(dx*i,dy*j);
+      v_prev[i*(Nx+1)+j]= 0.0;//Maa endres
     }
   }
 
@@ -152,4 +158,28 @@ void printToFile(int N, char *outfilename, double *v)
     ofile << endl;
   }
   ofile.close(); //Close outupfile
+}
+
+
+
+double c(double x, double y );
+{
+return 1.0
+}
+
+
+double f(double x, double y );
+{
+return 0.0
+}
+
+
+double I(double, double);
+{
+return 1.0
+}
+
+double V(double, double);
+{
+return 0.0
 }
