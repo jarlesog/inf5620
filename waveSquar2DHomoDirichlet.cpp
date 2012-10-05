@@ -1,10 +1,10 @@
 /*
-  Auther: Jarle Sogn
+  Auther: Haakon Osterbo og Jarle Sogn
 
 
 */
 
-//forklar alle funskjonen og refere til formler i besvarelsen
+
 
 #include <cmath>
 #include <stdio.h>
@@ -17,29 +17,29 @@ using namespace std;
 
 ofstream ofile;
 
-void interate_v(int,double, double *,double *,double *);
+void interate_v(int,int, double, double, double, double, double *,double *,double *);
 void create_initial_v(int, double *);;
 void printToFile(int, char *, double *);
 
 int main(int argc, char* argv[])
 { 
   //Input variabels(read form commandline)
-  int N; int M; double T; double c;
+  int Nx; int Ny; int M; double T; double c;
 
-  if( argc <= 4 ){
+  if( argc <= 5 ){
     cout << "Bad Usage: " << argv[0] << 
-      "Read also in: N, M, T, and c, on same line" << endl;
+      "Read also in: Nx, Ny, M, T, and c, on same line" << endl;
     exit(1);
   }
   else{
-    N = atoi(argv[1]); M = atoi(argv[2]); 
-    T = atof(argv[3]); c = atof(argv[4]);
+    Nx = atoi(argv[1]); Ny = atoi(argv[2]);  M = atoi(argv[3]); 
+    T = atof(argv[4]) ; c  = atof(argv[5]);
   }
   
   //Reserving space for my vactor(matrises)
-  double *v_prev = new double [N*N];
-  double *v_now  = new double [N*N];
-  double *v_next = new double [N*N];
+  double *v_prev = new double [(Nx+1)*(Ny+1)];
+  double *v_now  = new double [(Nx+1)*(Ny+1)];
+  double *v_next = new double [(Nx+1)*(Ny+1)];
   
   //#Alternative method
   //#double** matrix = new double[N];
@@ -47,11 +47,11 @@ int main(int argc, char* argv[])
   //#matrix[i]= buf + i*N //buf er en vector.
   
   //Creating contans
-  double h = 1.0/(N-1);
+  double dx = 1.0/Nx;
+  double dy = 1.0/Ny;
   double dt= T/M;
-  double C2= dt*dt*c*c/(4*h*h);
   double *temp_pointer;
-  char outfilename[60];  
+  char outfilename[60]; 
   int ff   = 1; //Frame frevense
   if(M >=(int)T*24){ff = M/((int)T*24);}
   
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   //Main Loop:
   //For each interation it move one timestep dt forward
   for (int i=1; i <= M;i++){
-    interate_v(N,C2,v_next,v_now,v_prev);
+    interate_v(Nx, Ny, dx, dy, dt, b, v_next,v_now,v_prev);
     //updateing pointers
     temp_pointer = v_prev;
     v_prev = v_now;
@@ -96,15 +96,23 @@ int main(int argc, char* argv[])
 
 
 //Moves one time step forward
-void interate_v(int N, double C2, double* v_next, double* v_now, double* v_prev)
+void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,double* v_next, double* v_now, double* v_prev)
 {
   double *temp_pointer;
+  //Div constants to save flops
+  double cx_tmp = 2*dt*dt/((2+b*dt)*dx*dx);
+  double cx_tmp = 2*dt*dt/((2+b*dt)*dy*dy);
+  double cf_tmp = (2 + b*dt)/(2*dt*dt);
+  double c_damp = 2/(2+b*dt);
+  double c_prev = b*dt/(2+b*dt);
+
   //Create/fill the v_new vector/matrix 
-  for(int i = 1; i < N-1; i++){
-    for(int j = 1; j < N-1; j++){
-      double temp0 = C2*(v_now[i*(N)+j+1] + v_now[i*(N)+j-1] + v_now[(i-1)*(N)+j] + v_now[(i+1)*(N)+j] - 4*v_now[i*(N)+j]);
-      double temp1 = 2*v_now[i*(N)+j] - v_prev[i*(N)+j]; 
-      v_next[i*(N)+j] = temp0+temp1;
+  //Denne for-loopen gaar kun igjennom de indre punktene
+  for(int i = 1; i < Ny; i++){
+    for(int j = 1; j < Nx; j++){
+      //double temp0 = C2*(v_now[i*(N)+j+1] + v_now[i*(N)+j-1] + v_now[(i-1)*(N)+j] + v_now[(i+1)*(N)+j] - 4*v_now[i*(N)+j]);
+      //double temp1 = 2*v_now[i*(N)+j] - v_prev[i*(N)+j]; 
+      v_next[i*(Nx+1)+j] = temp0+temp1;
       }
   }
   //Updateing the vectors/matrises(Change the pointer)						\
