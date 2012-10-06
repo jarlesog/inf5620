@@ -10,10 +10,10 @@ from scitools.all import *
 
 
 #M should b a multipel of 24T
-N = 80; M = 288; T = 4; c = 1 
+Nx = 80; Ny = 80; M = 288; T = 4; c = 1; 
 
 t_0 = time.time()
-subprocess.call(["waveSquar2DHomoDirichlet.x", str(N), str(M), str(T), str(c)])
+subprocess.call(["waveSquar2DHomoDirichlet.x", str(Nx), str(Ny), str(M), str(T), str(c)])
 cpuTime = time.time()-t_0
 print 'cpu time: ', cpuTime;
 
