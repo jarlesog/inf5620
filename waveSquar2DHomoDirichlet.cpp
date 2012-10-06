@@ -133,16 +133,16 @@ void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,doubl
 //Creats the initial condition
 void create_initial_v(int Nx, int Ny, double dx, double dy,double *v_now, double *v_prev)
 {
+  //u(x,y,t=0), n = 0
   for(int i = 0; i < Ny+1; i++){
     for(int j = 0; j < Nx+1; j++){
-      //if(i == 0 || i == N || j == 0 || j == N){
-	//v_now[i*(N)+j] = 0;
-	//}
-      v_now[i*(Nx+1)+j] = I(dx*i,dy*j);
-      v_prev[i*(Nx+1)+j]= 0.0;//Maa endres
-    }
-  }
-
+      v_prev[i*(Nx+1)+j] = I(dx*i,dy*j);
+    }}
+  //u(x,y,t=dt), n = 1
+  for(int i = 0; i < Ny+1; i++){
+    for(int j = 0; j < Nx+1; j++){
+      v_now[i*(Nx+1)+j] = 0.0;
+    }}
 }
 
 
