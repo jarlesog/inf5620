@@ -121,14 +121,19 @@ void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,doubl
 	v_next[i*(Nx+1)+j] = temp0+temp1+temp3;
       }
   }
-  //Updateing the vectors/matrises(Change the pointer)						\
+  //Updateing the vectors/matrises(Change the pointer)
+
   temp_pointer = v_prev;
   v_prev = v_now;
   v_now  = v_next;
   v_next = temp_pointer;
 }
 
+//Sets Neuman boundary condition
+void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double* v_next, double* v_now, double* v_prev)
+{
 
+}
 
 //Creats the initial condition
 void create_initial_v(int Nx, int Ny, double dx, double dy,double *v_now, double *v_prev)
