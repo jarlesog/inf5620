@@ -19,6 +19,8 @@ ofstream ofile;
 
 void interate_v(int,int, double, double, double, double, double *,double *,double *);
 void create_initial_v(int, int, double, double, double *, double *);
+
+void neuman_boundary_cond(int, int, double, double, double, double*, double*, double*)
 void printToFile(int, char *, double *);
 
 
@@ -174,12 +176,8 @@ void create_initial_v(int Nx, int Ny, double dx, double dy,double *v_now, double
   //u(x,y,t=0), n = 0
   for(int i = 0; i < Ny+1; i++){
     for(int j = 0; j < Nx+1; j++){
-      v_prev[i*(Nx+1)+j] = I(dx*i,dy*j);
-    }}
-  //u(x,y,t=dt), n = 1
-  for(int i = 0; i < Ny+1; i++){
-    for(int j = 0; j < Nx+1; j++){
-      v_now[i*(Nx+1)+j] = 0.0;
+      v_now[i*(Nx+1)+j] = I(dx*i,dy*j);
+      v_prev[i*(Nx+1)+j] = v_now[i*(Nx+1)+j] - V(i*dx,j*dy);//Backward Euler
     }}
 }
 
@@ -212,12 +210,12 @@ return 0.0
 }
 
 
-double I(double, double);
+double I(double x, double y);
 {
 return 1.0
 }
 
-double V(double, double);
+double V(double x, double y);
 {
 return 0.0
 }
