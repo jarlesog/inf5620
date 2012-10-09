@@ -20,7 +20,7 @@ ofstream ofile;
 void interate_v(int,int, double, double, double, double, double *,double *,double *);
 void create_initial_v(int, int, double, double, double *, double *);
 
-void neuman_boundary_cond(int, int, double, double, double, double*, double*, double*);
+void neuman_boundary_cond(int, int, double, double, double, double, double*, double*, double*);
 void printToFile(int, int, char *, double *);
 
 
@@ -66,17 +66,18 @@ int main(int argc, char* argv[])
   
 
   //Create the initial condition
-  create_initial_v(Nx, Ny, dx, dy, v_now, V_prev);
+  create_initial_v(Nx, Ny, dx, dy, v_now, v_prev);
 
   //Write the IC to a file 
-  sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", N, M, 0*dt);
-  printToFile(N, outfilename, v_now);
+  //NB endre DENNE!!!
+  sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", Nx, M, 0*dt);
+  printToFile(Nx,Ny, outfilename, v_now);
 
   //Main Loop:
   //For each interation it move one timestep dt forward
   for (int i=1; i <= M;i++){
     interate_v(Nx, Ny, dx, dy, dt, b, v_next,v_now,v_prev);
-    neuman_boundary_cond(Nx, Ny, dx, dy, b, v_next, v_now, v_prev);
+    neuman_boundary_cond(Nx, Ny, dx, dy, dt, b, v_next, v_now, v_prev);
     //updateing pointers
     temp_pointer = v_prev;
     v_prev = v_now;
@@ -90,7 +91,8 @@ int main(int argc, char* argv[])
     //so i use 24 frames per seconds(to save run-time 
     //and space.
     if(i%ff == 0){
-      sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", N, M, i*dt);
+      //NB N endring HER!!!
+      sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", Nx, M, i*dt);
       printToFile(Nx, Ny, outfilename, v_now);}
   }
 
@@ -105,7 +107,7 @@ int main(int argc, char* argv[])
 
 
 //Moves one time step forward
-void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,double* v_next, double* v_now, double* v_prev)
+void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b,double* v_next, double* v_now, double* v_prev)
 {
   double *temp_pointer;
   //Div constants to save flops
@@ -114,15 +116,15 @@ void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,doubl
   double cf_tmp = (2 + b*dt)/(2*dt*dt);
   double c_damp = -2/(2+b*dt);
   double c_prev = b*dt/(2+b*dt);
-
+  double temp0, temp1, temp2;
   //Create/fill the v_new vector/matrix 
   //Denne for-loopen gaar kun igjennom de indre punktene
   for(int i = 1; i < Ny; i++){// i is y axis
     for(int j = 1; j < Nx; j++){//j is x axis
-      double temp0 = cx_tmp*(c(j*dx+dx/2,i*dy)*(v_now[(i+1)*(Nx+1)+j] - v_now[i*(Nx+1)+j]) - c(j*dx-dx/2,i*dy)*(v_now[i*(Nx+1)+j] - v_now[(i-1)*(Nx+1)+j]));
-      double temp1 = cy_tmp*(c(j*dx,i*dy+dy/2)*(v_now[i*(Nx+1)+j+1]   - v_now[i*(Nx+1)+j]) - c(j*dx,i*dy-dy/2)*(v_now[i*(Nx+1)+j] - v_now[i*(Nx+1)+j-1]))  ;
-      double temp3 = cf_tmp*f(j*dx,i*dy) + c_prev*v_prev[i*(N+1)+j] + c_damp*(v_prev[i*(N+1)+j] - 2*v_now[i*(N+1)+j]);
-	v_next[i*(Nx+1)+j] = temp0+temp1+temp3;
+      temp0 = cx_tmp*(c(j*dx+dx/2,i*dy)*(v_now[(i+1)*(Nx+1)+j] - v_now[i*(Nx+1)+j]) - c(j*dx-dx/2,i*dy)*(v_now[i*(Nx+1)+j] - v_now[(i-1)*(Nx+1)+j]));
+      temp1 = cy_tmp*(c(j*dx,i*dy+dy/2)*(v_now[i*(Nx+1)+j+1]   - v_now[i*(Nx+1)+j]) - c(j*dx,i*dy-dy/2)*(v_now[i*(Nx+1)+j] - v_now[i*(Nx+1)+j-1]))  ;
+      temp2 = cf_tmp*f(j*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+j] + c_damp*(v_prev[i*(Nx+1)+j] - 2*v_now[i*(Nx+1)+j]);
+	v_next[i*(Nx+1)+j] = temp0+temp1+temp2;
       }
   }
   //Updateing the vectors/matrises(Change the pointer)
@@ -134,40 +136,40 @@ void interate_v(int Nx, ,int Ny, double dx, double dy, double dt, double b,doubl
 }
 
 //Sets Neuman boundary condition
-void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double b, double* v_next, double* v_now, double* v_prev)
+void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, double b, double* v_next, double* v_now, double* v_prev)
 {
         double cx_tmp = 2*dt*dt/((2+b*dt)*dx*dx);
         double cy_tmp = 2*dt*dt/((2+b*dt)*dy*dy);
         double cf_tmp = (2 + b*dt)/(2*dt*dt);
         double c_damp = -2/(2+b*dt);
         double c_prev = b*dt/(2+b*dt);
-
+	double temp0, temp1, temp2;
         //Boundary conditions for y
         for(int j = 1; j<Nx; j++){
                 //y = 0 boundary
-                double temp0 = cy_tmp*(v_now[1*(Nx+1)+j]-v_now[0*(Nx+1)+j])*(c(j*dx,.5*dy) + c(j*dx,-.5*dy));
-                double temp1 = cx_tmp*(c(j*dx+0.5*dx,0)*(v_now[0*(Nx+1)+j+1]-v_now[0*(Nx+1)+j]) - c(j*dx-0.5*dx,0)*(v_now[0*(Nx+1)+j]-v_now[0*(Nx+1)+j-1]));
-                double temp3 = cf_tmp*f(j*dx,0) + c_prev*v_prev[0*(N+1)+j] + c_damp*(v_prev[0*(N+1)+j] - 2*v_now[0*(N+1)+j]);
-                v_next[0*(Nx+1)+j] = temp0+temp1+temp3;
+                temp0 = cy_tmp*(v_now[1*(Nx+1)+j]-v_now[0*(Nx+1)+j])*(c(j*dx,.5*dy) + c(j*dx,-.5*dy));
+                temp1 = cx_tmp*(c(j*dx+0.5*dx,0)*(v_now[0*(Nx+1)+j+1]-v_now[0*(Nx+1)+j]) - c(j*dx-0.5*dx,0)*(v_now[0*(Nx+1)+j]-v_now[0*(Nx+1)+j-1]));
+                temp2 = cf_tmp*f(j*dx,0) + c_prev*v_prev[0*(Nx+1)+j] + c_damp*(v_prev[0*(Nx+1)+j] - 2*v_now[0*(Nx+1)+j]);
+                v_next[0*(Nx+1)+j] = temp0+temp1+temp2;
 
                 //y = Ly boundary
-                double temp0 = cy_tmp*(v_now[(Nx-1)*(Nx+1)+j]-v_now[Nx*(Nx+1)+j])*(c(j*dx,Ny*dy + 0.5*dy) + c(j*dx,Ny*dy - 0.5*dy));
-                double temp1 = cx_tmp*(c(j*dx+.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j+1]-v_now[Nx*(Nx+1)+j]) - c(j*dx-.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j]-v_now[Nx*(Nx+1)+j-1]));
-                double temp3 = cf_tmp*f(j*dx,Ny*dy) + c_prev*v_prev[Nx*(N+1)+j] + c_damp*(v_prev[Nx*(N+1)+j] - 2*v_now[Nx*(N+1)+j]);
-                v_next[Nx*(Nx+1)+j] = temp0+temp1+temp3;
+                temp0 = cy_tmp*(v_now[(Nx-1)*(Nx+1)+j]-v_now[Nx*(Nx+1)+j])*(c(j*dx,Ny*dy + 0.5*dy) + c(j*dx,Ny*dy - 0.5*dy));
+                temp1 = cx_tmp*(c(j*dx+.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j+1]-v_now[Nx*(Nx+1)+j]) - c(j*dx-.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j]-v_now[Nx*(Nx+1)+j-1]));
+                temp2 = cf_tmp*f(j*dx,Ny*dy) + c_prev*v_prev[Nx*(Nx+1)+j] + c_damp*(v_prev[Nx*(Nx+1)+j] - 2*v_now[Nx*(Nx+1)+j]);
+                v_next[Nx*(Nx+1)+j] = temp0+temp1+temp2;
         }
 
         for(int i = 1; i<Ny; i++){
                 //x = 0 boundary
-	  double temp0 = cy_tmp*(c(0,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+0]-v_now[i*(Nx+1)+0]) - c(0,i*dy-.5*dy)*(v_now[i*(Nx+1)+0]-v_now[(i-1)*(Nx+1)+0]));
-	  double temp1 = cx_tmp*(v_now[i*(Nx+1)+1]-v_now[i*(Nx+1)+0])*(c(.5*dx,i*dy) + c(-.5*dx,i*dy));
-	  double temp2 = cf_tmp*f(0,i*dy) + c_prev*v_prev[i*(N+1)+0] + c_damp*(v_prev[i*(N+1)+0] - 2*v_now[i*(N+1)+0]);
+	  temp0 = cy_tmp*(c(0,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+0]-v_now[i*(Nx+1)+0]) - c(0,i*dy-.5*dy)*(v_now[i*(Nx+1)+0]-v_now[(i-1)*(Nx+1)+0]));
+	  temp1 = cx_tmp*(v_now[i*(Nx+1)+1]-v_now[i*(Nx+1)+0])*(c(.5*dx,i*dy) + c(-.5*dx,i*dy));
+	  temp2 = cf_tmp*f(0,i*dy) + c_prev*v_prev[i*(Nx+1)+0] + c_damp*(v_prev[i*(Nx+1)+0] - 2*v_now[i*(Nx+1)+0]);
                 v_next[i*(Nx+1)+0] = temp0+temp1+temp2;
 
                 //x = Lx boundary
-                double temp0 = cy_tmp*(c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Ny]-v_now[i*(Nx+1)+Ny]) - c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Ny]-v_now[(i-1)*(Nx+1)+Ny]));
-                double temp1 = cx_tmp*(v_now[i*(Nx+1)+Ny-1]-v_now[i*(Nx+1)+Ny])*(c(Nx*dx+.5*dx,i*dy) + c(Nx*dx-.5*dx,i*dy));
-                double temp2 = cf_tmp*f(Nx*dx,i*dy) + c_prev*v_prev[i*(N+1)+Ny] + c_damp*(v_prev[i*(N+1)+Ny] - 2*v_now[i*(N+1)+Ny]);
+                temp0 = cy_tmp*(c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Ny]-v_now[i*(Nx+1)+Ny]) - c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Ny]-v_now[(i-1)*(Nx+1)+Ny]));
+                temp1 = cx_tmp*(v_now[i*(Nx+1)+Ny-1]-v_now[i*(Nx+1)+Ny])*(c(Nx*dx+.5*dx,i*dy) + c(Nx*dx-.5*dx,i*dy));
+                temp2 = cf_tmp*f(Nx*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+Ny] + c_damp*(v_prev[i*(Nx+1)+Ny] - 2*v_now[i*(Nx+1)+Ny]);
                 v_next[i*(Nx+1)+Ny] = temp0+temp1+temp2;
         }
 }
@@ -192,7 +194,7 @@ void printToFile(int Nx, int Ny, char *outfilename, double *v)
   for(int i = 0; i <= Ny; i++){
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     for(int j = 0; j <= Nx; j++){
-      ofile << setw(15) << setprecision(8) << v[i*(N)+j];
+      ofile << setw(15) << setprecision(8) << v[i*(Nx+1)+j];
     }
     ofile << endl;
   }
@@ -201,24 +203,24 @@ void printToFile(int Nx, int Ny, char *outfilename, double *v)
 
 
 
-double c(double x, double y );
+double c(double x, double y )
 {
-return 1.0
+  return 1.0;
 }
 
 
-double f(double x, double y );
+double f(double x, double y )
 {
-return 0.0
+  return 0.0;
 }
 
 
-double I(double x, double y);
+double I(double x, double y)
 {
   return exp(-((x-0.5)*(x-0.5) - (y-0.5)*(y-0.5)));
 }
 
-double V(double x, double y);
+double V(double x, double y)
 {
-return 0.0
+  return 0.0;
 }
