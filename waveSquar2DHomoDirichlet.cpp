@@ -153,6 +153,7 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double b, double
                 v_next[Nx*(Nx+1)+j] = temp0+temp1+temp3;
         }
 
+        //Boundary conditions for y
         for(int i = 1; i<Nx; i++){
                 //y = 0 boundary
                 double temp1 = cx_tmp*(c(i*dx+.5*dx,0)*(v_now[(i+1)*(Nx+1)+0]-v_now[i*(Nx+1)+0]) - c(i*dx-.5*dx,0)*(v_now[i*(Nx+1)+0]-v_now[(i-1)*(Nx+1)+0]));
