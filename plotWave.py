@@ -21,20 +21,22 @@ Conditionlist = ["wave x", "heat x", "wave y", "heat y"];
 for i in range(len(CFLlist)):
         if(CFLlist[i] > 1):
                 print "bad stability condition on %s: %g should be less than 1" %(Conditionlist[i], CFLlist[i])
-                sys.exit(True)
+                #sys.exit(True)
 
 
 t_0 = time.time()
-subprocess.call(["waveSquar2DNeuman.x", str(Nx), str(Ny), str(M), str(T), str(Lx), str(Ly)])
+subprocess.call(["./waveSquar2DNeuman.x", str(Nx), str(Ny), str(M), str(T), str(Lx), str(Ly)])
 cpuTime = time.time()-t_0
 print 'C++ program done!!! cpu time: ', cpuTime;
 
 #Makeing the grid
 x = np.linspace(0,Lx,Nx+1)
 y = np.linspace(0,Ly,Ny+1)
+xv, yv = ndgrid(x,y)
 Z = np.zeros((Ny+1,Nx+1))
 
 def openAndPlotFile(filename, t):
+        
     f =open(filename, 'r')
     #Filling Z with values from the file
     i = 0;
@@ -47,7 +49,7 @@ def openAndPlotFile(filename, t):
     f.close()
     #plotting
     plotfilename = 'plotWave_Nx%g_Ny%g_t%4.2f.png' % (Nx,Ny, t)
-    surf(x,y,Z,
+    surf(xv,yv,Z,
          xlabel = 'x',
          ylabel = 'y',
          shading = 'flat',
@@ -94,7 +96,7 @@ for filename in listOfFile:
 		#Delete plot in current directory
 		os.remove(os.path.join(orgdir, plotfilename));
 		#Delete the datafiles
-		##IKKE bruk denne kommandoen før du er sikker på at if testen er korrekt
+		##IKKE bruk denne kommandoen fÃ¸r du er sikker pÃ¥ at if testen er korrekt
 		os.remove(os.path.join(orgdir, filename));
 
 #change directory to where the plots are

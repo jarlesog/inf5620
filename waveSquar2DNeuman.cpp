@@ -18,14 +18,16 @@ using namespace std;
 class waveFunctions
 {
         public:
-                waveFunctions(double Lx, double Ly);
+                waveFunctions(double Lx, double Ly, double dx, double dy, double dt);
                 double c(double x, double y);
                 double f(double x, double y);
                 double I(double x, double y);
                 double V(double x, double y);
+                double getCFL();
+                bool isStabile();
         private:
-                double Lx;
-                double Ly;
+                double Lx; double Ly;
+                double dx; double dy; double dt;
 };
 
 ofstream ofile;
@@ -54,7 +56,7 @@ int main(int argc, char* argv[])
     Nx = atoi(argv[1]); Ny = atoi(argv[2]);  M = atoi(argv[3]); 
     T = atof(argv[4]); Lx = atof(argv[5]); Ly = atof(argv[6]);
   }
-  waveFunctions w(Lx, Ly);
+  waveFunctions w(Lx, Ly, Nx, Ny);
   
   
   //Reserving space for my vactor(matrises)
@@ -72,6 +74,9 @@ int main(int argc, char* argv[])
   double dy = Ly/Ny;
   double dt= T/M;
   double b = 0.0;
+  
+  waveFunctions w(Lx, Ly, dx, dy, dt);
+  
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
@@ -215,9 +220,11 @@ void printToFile(int Nx, int Ny, char *outfilename, double *v)
 }
 
 
-waveFunctions::waveFunctions(double Lxin, double Lyin)
+waveFunctions::waveFunctions(double Lxin, double Lyin, double dxin, double dyin, double dtin)
 {
-        Lx = Lxin; Ly = Lyin;
+        Lx = Lxin; Ly = Lyin; 
+        dx = dxin; dy = dyin; dt = dtin;
+        max_c = 1;
 }
 
 double waveFunctions::c(double x, double y )
@@ -240,3 +247,16 @@ double waveFunctions::V(double x, double y)
 {
         return 0.0;
 }
+
+double waveFunctions::getCFL()
+{
+        return max_c*dt/sqrt(dx*dx + dy*dy)
+}
+
+bool waveFunctions::isStabile()
+{
+        return getCFL() == 1;
+}
+
+
+
