@@ -227,20 +227,16 @@ double waveFunctions::c(double x, double y )
 
 double waveFunctions::f(double x, double y )
 {
-return 0.0;
+        return 0.0;
 }
 
 double waveFunctions::I(double x, double y)
 {
-<<<<<<< HEAD
-return exp(-((x-0.5*Lx)*(x-0.5*Lx) - (y-0.5*Ly)*(y-0.5*Ly)));
-=======
-  double a = 20;
-  return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
->>>>>>> fb6322df75b3940bc8ca66a74feb283b1c8d64a0
+        double a = 20;
+        return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
 }
 
 double waveFunctions::V(double x, double y)
 {
-return 0.0;
+        return 0.0;
 }
