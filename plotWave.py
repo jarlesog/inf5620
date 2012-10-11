@@ -30,9 +30,9 @@ cpuTime = time.time()-t_0
 print 'C++ program done!!! cpu time: ', cpuTime;
 
 #Makeing the grid
-x = np.linspace(0,Lx,Nx)
-y = np.linspace(0,Ly,Ny)
-Z = np.zeros((Ny,Nx))
+x = np.linspace(0,Lx,Nx+1)
+y = np.linspace(0,Ly,Ny+1)
+Z = np.zeros((Ny+1,Nx+1))
 
 def openAndPlotFile(filename, t):
     f =open(filename, 'r')
@@ -41,7 +41,8 @@ def openAndPlotFile(filename, t):
     for line in f:
         values = line.split()
         for k in xrange(len(values)):
-            Z[i][k] = float(values[k]);
+		#print 'In function: openAndPlotFile:', Nx
+		Z[i][k] = float(values[k]);
         i += 1
     f.close()
     #plotting
@@ -61,6 +62,8 @@ def openAndPlotFile(filename, t):
 orgdir = os.getcwd();
 listOfFile = os.listdir(orgdir);
 
+
+
 #Make a subdirector named plots
 plotdir = os.path.join(orgdir, "plots");
 try:
@@ -72,23 +75,27 @@ except:
     #Continue
 os.mkdir(plotdir);
 
+
 #Remove the files that are not datafiles
 for filename in listOfFile:
-    #Denne if testen virker mest sannynelig ikke.
-    if filename[:16+len(str(Nx))] != 'wave_squar_2D_Nx' + str(Nx):
-        print 'Have removed the file:', filename, ' from the list!'
-        listOfFile.remove(filename);
-    else:
-        t = float(filename[(19+len(str(N))+len(str(M))):-4]);
-        #Make plot from datafile
-        plotfilename = openAndPlotFile(filename, t);
-        #copy plot to subdirctory
-        shutil.copy(os.path.join(orgdir, plotfilename) ,plotdir);
-        #Delete plot in current directory
-        os.remove(os.path.join(orgdir, plotfilename));
-        #Delete the datafiles
-        #IKKE bruk denne kommandoen før du er sikker på at if testen er korrekt
-        #os.remove(os.path.join(orgdir, filename));
+	#Remove all files that are not data files.
+	if filename[:19+len(str(Nx))+len(str(Nx))] != 'wave_squar_2D_Nx' + str(Nx) + '_Ny' + str(Ny):
+		print 'ignorering:', filename
+		pass
+		#listOfFile.remove(filename);
+	else:
+		print 'Useing datafile:', filename;
+		##Potensial feil telling
+		t = float(filename[(23+len(str(Nx))+len(str(Ny))+len(str(M))):-4]);
+		#Make plot from datafile
+		plotfilename = openAndPlotFile(filename, t);
+		#copy plot to subdirctory
+		shutil.copy(os.path.join(orgdir, plotfilename) ,plotdir);
+		#Delete plot in current directory
+		os.remove(os.path.join(orgdir, plotfilename));
+		#Delete the datafiles
+		##IKKE bruk denne kommandoen før du er sikker på at if testen er korrekt
+		os.remove(os.path.join(orgdir, filename));
 
 #change directory to where the plots are
 os.chdir(plotdir)
