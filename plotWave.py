@@ -35,16 +35,20 @@ y = np.linspace(0,Ly,Ny+1)
 Z = np.zeros((Ny+1,Nx+1))
 
 def openAndPlotFile(filename, t):
-    f =open(filename, 'r')
+    #Type 1
+    Z = np.loadtxt(filename);
+    #Type 2
+    #f =open(filename, 'r')
     #Filling Z with values from the file
-    i = 0;
-    for line in f:
-        values = line.split()
-        for k in xrange(len(values)):
-		#print 'In function: openAndPlotFile:', Nx
-		Z[i][k] = float(values[k]);
-        i += 1
-    f.close()
+    #i = 0;
+    #for line in f:
+    #values = line.split()
+    # for k in xrange(len(values)):
+    #print 'In function: openAndPlotFile:', Nx
+    #    	Z[i][k] = float(values[k]);
+    #    i += 1
+    #f.close()
+
     #plotting
     plotfilename = 'plotWave_Nx%g_Ny%g_t%4.2f.png' % (Nx,Ny, t)
     surf(x,y,Z,
