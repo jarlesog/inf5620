@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
   double dx = Lx/Nx;
   double dy = Ly/Ny;
   double dt= T/M;
-  double b = 0.0;
+  double b = 1.0;
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
