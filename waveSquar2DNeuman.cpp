@@ -19,7 +19,6 @@ ofstream ofile;
 
 void interate_v(int,int, double, double, double, double, double *,double *,double *);
 void create_initial_v(int, int, double, double, double, double, double *, double *);
-
 void neuman_boundary_cond(int, int, double, double, double, double, double*, double*, double*);
 void printToFile(int, int, char *, double *);
 
@@ -66,11 +65,10 @@ int main(int argc, char* argv[])
   
 
   //Create the initial condition
-  create_initial_v(Nx, Ny, dx, dy,Lx,Ly v_now, v_prev);
+  create_initial_v(Nx, Ny, dx, dy,Lx,Ly, v_now, v_prev);
 
   //Write the IC to a file 
-  //NB endre DENNE!!!
-  sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", Nx, M, 0*dt);
+  sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%4.2f.dat", Nx, Ny, M, 0*dt);
   printToFile(Nx,Ny, outfilename, v_now);
 
   //Main Loop:
@@ -91,8 +89,7 @@ int main(int argc, char* argv[])
     //so i use 24 frames per seconds(to save run-time 
     //and space.
     if(i%ff == 0){
-      //NB N endring HER!!!
-      sprintf(outfilename, "wave_squar_2D_N%d_M%d_t%4.2f.dat", Nx, M, i*dt);
+      sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%4.2f.dat", Nx, Ny,M, i*dt);
       printToFile(Nx, Ny, outfilename, v_now);}
   }
 

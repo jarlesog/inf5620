@@ -19,22 +19,22 @@ cpuTime = time.time()-t_0
 print 'cpu time: ', cpuTime;
 
 #Makeing the grid
-x = np.linspace(0,1,N)
-y = np.linspace(0,1,N)
-Z = np.zeros((N,N))
+x = np.linspace(0,Lx,Nx)
+y = np.linspace(0,Ly,Ny)
+Z = np.zeros((Ny,Nx))
 
 def openAndPlotFile(filename, t):
     f =open(filename, 'r')
     #Filling Z with values from the file
-    i = 1;
+    i = 0;
     for line in f:
         values = line.split()
         for k in xrange(len(values)):
-            Z[i][k+1] = float(values[k]);
+            Z[i][k] = float(values[k]);
         i += 1
     f.close()
     #plotting
-    plotfilename = 'plotWave_N%g_t%4.2f.png' % (N, t)
+    plotfilename = 'plotWave_Nx%g_Ny%g_t%4.2f.png' % (Nx,Ny, t)
     surf(x,y,Z,
          xlabel = 'x',
          ylabel = 'y',
@@ -63,7 +63,9 @@ os.mkdir(plotdir);
 
 #Remove the files that are not datafiles
 for filename in listOfFile:
-    if filename[:15+len(str(N))] != 'wave_squar_2D_N' + str(N):
+    #Denne if testen virker mest sannynelig ikke.
+    if filename[:16+len(str(Nx))] != 'wave_squar_2D_Nx' + str(N):
+        print 'Have removed the file:', filename, ' from the list!'
         listOfFile.remove(filename);
     else:
         t = float(filename[(19+len(str(N))+len(str(M))):-4]);
@@ -74,7 +76,8 @@ for filename in listOfFile:
         #Delete plot in current directory
         os.remove(os.path.join(orgdir, plotfilename));
         #Delete the datafiles
-        os.remove(os.path.join(orgdir, filename));
+        #IKKE bruk denne kommandoen før du er sikker på at if testen er korrekt
+        #os.remove(os.path.join(orgdir, filename));
 
 #change directory to where the plots are
 os.chdir(plotdir)
