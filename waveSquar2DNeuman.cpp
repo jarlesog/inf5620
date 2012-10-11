@@ -217,7 +217,8 @@ double f(double x, double y )
 
 double I(double x, double y, double Lx, double Ly)
 {
-  return exp(-((x-0.5*Lx)*(x-0.5*Lx) - (y-0.5*Ly)*(y-0.5*Ly)));
+  double a = 20;
+  return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
 }
 
 double V(double x, double y)
