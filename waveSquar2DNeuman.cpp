@@ -34,8 +34,7 @@ int main(int argc, char* argv[])
   int Nx; int Ny; int M; double T; double Lx; double Ly;
 
   if( argc <= 6 ){
-    cout << "Bad Usage: " << argv[0] << 
-      "Read also in: Nx, Ny, M, T, Lx, Ly on same line" << endl;
+    cout << "Bad Usage: " << argv[0] << "Read also in: Nx, Ny, M, T, Lx, Ly on same line" << endl;
     exit(1);
   }
   else{
