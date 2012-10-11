@@ -1,5 +1,5 @@
 
-#-*- codlin:utf-8 -*-
+#-*- coding:utf-8 -*-
 
 import os
 import subprocess
@@ -10,7 +10,7 @@ from scitools.all import *
 
 
 #M should b a multipel of 24T
-Nx = 80; Ny = 80; M = 288; T = 4; c = 1; Lx = 1; Ly = 1; 
+Nx = 80; Ny = 80; M = 288; T = 2; c = 1; Lx = 1; Ly = 1; 
 
 t_0 = time.time()
 subprocess.call(["waveSquar2DNeuman.x", str(Nx), str(Ny), 
@@ -64,7 +64,7 @@ os.mkdir(plotdir);
 #Remove the files that are not datafiles
 for filename in listOfFile:
     #Denne if testen virker mest sannynelig ikke.
-    if filename[:16+len(str(Nx))] != 'wave_squar_2D_Nx' + str(N):
+    if filename[:16+len(str(Nx))] != 'wave_squar_2D_Nx' + str(Nx):
         print 'Have removed the file:', filename, ' from the list!'
         listOfFile.remove(filename);
     else:
