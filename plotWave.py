@@ -12,7 +12,7 @@ from scitools.all import *
 
 
 #M should b a multipel of 24T
-Nx = 15; Ny = 15; M = 288; T = 0.5; c = 1; Lx = 1; Ly = 1; 
+Nx = 15; Ny = 15; M = 288; T = 5.0; c = 1; Lx = 1; Ly = 1; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 CFLlist = [dt/dx, 2*dt/(dx*dx), dt/dy, 2*dt/(dy*dy)]
@@ -38,24 +38,35 @@ Z = np.zeros((Ny+1,Nx+1))
 def openAndPlotFile(filename, t):
         
     f =open(filename, 'r')
+    #Type 1
+    Z = np.loadtxt(filename);
+    #Type 2
+    #f =open(filename, 'r')
     #Filling Z with values from the file
-    i = 0;
-    for line in f:
-        values = line.split()
-        for k in xrange(len(values)):
-		#print 'In function: openAndPlotFile:', Nx
-		Z[i][k] = float(values[k]);
-        i += 1
-    f.close()
+    #i = 0;
+    #for line in f:
+    #values = line.split()
+    # for k in xrange(len(values)):
+    #print 'In function: openAndPlotFile:', Nx
+    #    	Z[i][k] = float(values[k]);
+    #    i += 1
+    #f.close()
+
     #plotting
     plotfilename = 'plotWave_Nx%g_Ny%g_t%4.2f.png' % (Nx,Ny, t)
     surf(xv,yv,Z,
          xlabel = 'x',
          ylabel = 'y',
          shading = 'flat',
+	 #clevels=15,
+	 #clabels='on',
+	 colorbar=[-1,1],
+	 #view = [-1,1],
          title  = 'Wave equation t = %4.2f' % t,
-         axis = [0,1,0,1,-0.5,0.5],
+         axis = [0,Lx,0,Ly,-1,1],
          show = False,
+	 #rstride=4, #extra
+	 #cstride=4, #extra#extra
          hardcopy= plotfilename)
     return plotfilename
 
@@ -109,7 +120,7 @@ os.chdir(plotdir)
 ##    pass
 ##print "end time!"
 
-#movie('plotWave_*.png', fps = 12, quiet = True)
+movie('plotWave_*.png', fps = 12, quiet = True)
 #
 print 'program time: ', time.time()-t_0;
 

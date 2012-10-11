@@ -28,6 +28,7 @@ class waveFunctions
         private:
                 double Lx; double Ly;
                 double dx; double dy; double dt;
+                double max_c;
 };
 
 ofstream ofile;
@@ -56,7 +57,6 @@ int main(int argc, char* argv[])
     Nx = atoi(argv[1]); Ny = atoi(argv[2]);  M = atoi(argv[3]); 
     T = atof(argv[4]); Lx = atof(argv[5]); Ly = atof(argv[6]);
   }
-  waveFunctions w(Lx, Ly, Nx, Ny);
   
   
   //Reserving space for my vactor(matrises)
@@ -73,10 +73,10 @@ int main(int argc, char* argv[])
   double dx = Lx/Nx;
   double dy = Ly/Ny;
   double dt= T/M;
-  double b = 0.0;
   
   waveFunctions w(Lx, Ly, dx, dy, dt);
   
+  double b = 1.0;
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
@@ -250,7 +250,7 @@ double waveFunctions::V(double x, double y)
 
 double waveFunctions::getCFL()
 {
-        return max_c*dt/sqrt(dx*dx + dy*dy)
+        return max_c*dt/sqrt(dx*dx + dy*dy);
 }
 
 bool waveFunctions::isStabile()
