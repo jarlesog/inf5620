@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     Nx = atoi(argv[1]); Ny = atoi(argv[2]);  M = atoi(argv[3]); 
     T = atof(argv[4]); Lx = atof(argv[5]); Ly = atof(argv[6]);
   }
-
+  
   
   //Reserving space for my vactor(matrises)
   double *v_prev = new double [(Nx+1)*(Ny+1)];
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
-  if(M >=(int)T*24){ff = M/((int)T*24);}
+  if(M >=(int)T*24){ff = M/((int)(T*24));}
   
 
   //Create the initial condition

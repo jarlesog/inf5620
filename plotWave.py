@@ -2,11 +2,11 @@
 #-*- coding:utf-8 -*-
 
 import os
+import sys
 import subprocess
 import time
 import shutil
 import numpy as np
-import sys
 from scitools.all import *
 
 
@@ -27,7 +27,7 @@ for i in range(len(CFLlist)):
 t_0 = time.time()
 subprocess.call(["waveSquar2DNeuman.x", str(Nx), str(Ny), str(M), str(T), str(Lx), str(Ly)])
 cpuTime = time.time()-t_0
-print 'cpu time: ', cpuTime;
+print 'C++ program done!!! cpu time: ', cpuTime;
 
 #Makeing the grid
 x = np.linspace(0,Lx,Nx)
@@ -100,7 +100,7 @@ os.chdir(plotdir)
 ##    pass
 ##print "end time!"
 
-movie('plotWave_*.png', fps = 12, quiet = True)
+#movie('plotWave_*.png', fps = 12, quiet = True)
 #
 print 'program time: ', time.time()-t_0;
 
