@@ -1,4 +1,3 @@
-
 #-*- coding:utf-8 -*-
 
 import os
@@ -28,22 +27,10 @@ xv, yv = ndgrid(x,y)
 Z = np.zeros((Ny+1,Nx+1))
 
 def openAndPlotFile(filename, t):
-        
-    f =open(filename, 'r')
-    #Type 1
+    #Load the datafil into a matrix
     Z = np.loadtxt(filename);
     Z = np.transpose(Z);
-    #Type 2
-    #f =open(filename, 'r')
-    #Filling Z with values from the file
-    #i = 0;
-    #for line in f:
-    #values = line.split()
-    # for k in xrange(len(values)):
-    #print 'In function: openAndPlotFile:', Nx
-    #    	Z[i][k] = float(values[k]);
-    #    i += 1
-    #f.close()
+
 
     #plotting
     plotfilename = 'plotWave_Nx%g_Ny%g_t%4.2f.png' % (Nx,Ny, t)
@@ -59,7 +46,7 @@ def openAndPlotFile(filename, t):
          axis = [0,Lx,0,Ly,-1,1],
          show = False,
 	 #rstride=4, #extra
-	 #cstride=4, #extra#extra
+	 #cstride=4, #extra
          hardcopy= plotfilename)
     return plotfilename
 
@@ -100,7 +87,7 @@ for filename in listOfFile:
 		#Delete plot in current directory
 		os.remove(os.path.join(orgdir, plotfilename));
 		#Delete the datafiles
-		##IKKE bruk denne kommandoen før du er sikker på at if testen er korrekt
+		##IKKE bruk denne kommandoen fÃžr du er sikker pÃ¥ at if testen er korrekt
 		os.remove(os.path.join(orgdir, filename));
 
 #change directory to where the plots are
@@ -116,5 +103,3 @@ os.chdir(plotdir)
 movie('plotWave_*.png', fps = 12, quiet = True)
 #
 print 'program time: ', time.time()-t_0;
-
-#pydoc scitools.easyviz.movie

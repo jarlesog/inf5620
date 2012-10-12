@@ -149,7 +149,6 @@ void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveF
       }
   }
   //Updateing the vectors/matrises(Change the pointer)
-
   temp_pointer = v_prev;
   v_prev = v_now;
   v_now  = v_next;
@@ -168,32 +167,32 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
         
         //Boundary conditions for y
         for(int j = 1; j<Nx; j++){
-                //y = 0 boundary
-                temp0 = cy_tmp*(v_now[1*(Nx+1)+j]-v_now[0*(Nx+1)+j])*(w.c(j*dx,.5*dy) + w.c(j*dx,-.5*dy));
-                temp1 = cx_tmp*(w.c(j*dx+0.5*dx,0)*(v_now[0*(Nx+1)+j+1]-v_now[0*(Nx+1)+j]) - w.c(j*dx-0.5*dx,0)*(v_now[0*(Nx+1)+j]-v_now[0*(Nx+1)+j-1]));
-                temp2 = cf_tmp*w.f(j*dx,0) + c_prev*v_prev[0*(Nx+1)+j] + c_damp*(v_prev[0*(Nx+1)+j] - 2*v_now[0*(Nx+1)+j]);
-                v_next[0*(Nx+1)+j] = temp0+temp1+temp2;
-
-                //y = Ly boundary
-                temp0 = cy_tmp*(v_now[(Nx-1)*(Nx+1)+j]-v_now[Nx*(Nx+1)+j])*(w.c(j*dx,Ny*dy + 0.5*dy) + w.c(j*dx,Ny*dy - 0.5*dy));
-                temp1 = cx_tmp*(w.c(j*dx+.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j+1]-v_now[Nx*(Nx+1)+j]) - w.c(j*dx-.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j]-v_now[Nx*(Nx+1)+j-1]));
-                temp2 = cf_tmp*w.f(j*dx,Ny*dy) + c_prev*v_prev[Nx*(Nx+1)+j] + c_damp*(v_prev[Nx*(Nx+1)+j] - 2*v_now[Nx*(Nx+1)+j]);
-                v_next[Nx*(Nx+1)+j] = temp0+temp1+temp2;
+	  //y = 0 boundary;
+	  temp0 = cy_tmp*(v_now[1*(Nx+1)+j]-v_now[0*(Nx+1)+j])*(w.c(j*dx,.5*dy) + w.c(j*dx,-.5*dy));
+	  temp1 = cx_tmp*(w.c(j*dx+0.5*dx,0)*(v_now[0*(Nx+1)+j+1]-v_now[0*(Nx+1)+j]) - w.c(j*dx-0.5*dx,0)*(v_now[0*(Nx+1)+j]-v_now[0*(Nx+1)+j-1]));
+	  temp2 = cf_tmp*w.f(j*dx,0) + c_prev*v_prev[0*(Nx+1)+j] + c_damp*(v_prev[0*(Nx+1)+j] - 2*v_now[0*(Nx+1)+j]);
+	  v_next[0*(Nx+1)+j] = temp0+temp1+temp2;
+	  
+	  //y = Ly boundary
+	  temp0 = cy_tmp*(v_now[(Nx-1)*(Nx+1)+j]-v_now[Nx*(Nx+1)+j])*(w.c(j*dx,Ny*dy + 0.5*dy) + w.c(j*dx,Ny*dy - 0.5*dy));
+	  temp1 = cx_tmp*(w.c(j*dx+.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j+1]-v_now[Nx*(Nx+1)+j]) - w.c(j*dx-.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j]-v_now[Nx*(Nx+1)+j-1]));
+	  temp2 = cf_tmp*w.f(j*dx,Ny*dy) + c_prev*v_prev[Nx*(Nx+1)+j] + c_damp*(v_prev[Nx*(Nx+1)+j] - 2*v_now[Nx*(Nx+1)+j]);
+	  v_next[Nx*(Nx+1)+j] = temp0+temp1+temp2;
         }
 
         //Boundary conditions for x
         for(int i = 1; i<Ny; i++){
-                //x = 0 boundary
+	  //x = 0 boundary
 	  temp0 = cy_tmp*(w.c(0,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+0]-v_now[i*(Nx+1)+0]) - w.c(0,i*dy-.5*dy)*(v_now[i*(Nx+1)+0]-v_now[(i-1)*(Nx+1)+0]));
 	  temp1 = cx_tmp*(v_now[i*(Nx+1)+1]-v_now[i*(Nx+1)+0])*(w.c(.5*dx,i*dy) + w.c(-.5*dx,i*dy));
 	  temp2 = cf_tmp*w.f(0,i*dy) + c_prev*v_prev[i*(Nx+1)+0] + c_damp*(v_prev[i*(Nx+1)+0] - 2*v_now[i*(Nx+1)+0]);
-                v_next[i*(Nx+1)+0] = temp0+temp1+temp2;
-
-                //x = Lx boundary
-                temp0 = cy_tmp*(w.c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Ny]-v_now[i*(Nx+1)+Ny]) - w.c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Ny]-v_now[(i-1)*(Nx+1)+Ny]));
-                temp1 = cx_tmp*(v_now[i*(Nx+1)+Ny-1]-v_now[i*(Nx+1)+Ny])*(w.c(Nx*dx+.5*dx,i*dy) + w.c(Nx*dx-.5*dx,i*dy));
-                temp2 = cf_tmp*w.f(Nx*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+Ny] + c_damp*(v_prev[i*(Nx+1)+Ny] - 2*v_now[i*(Nx+1)+Ny]);
-                v_next[i*(Nx+1)+Ny] = temp0+temp1+temp2;
+	  v_next[i*(Nx+1)+0] = temp0+temp1+temp2;
+	  
+	  //x = Lx boundary
+	  temp0 = cy_tmp*(w.c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Ny]-v_now[i*(Nx+1)+Ny]) - w.c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Ny]-v_now[(i-1)*(Nx+1)+Ny]));
+	  temp1 = cx_tmp*(v_now[i*(Nx+1)+Ny-1]-v_now[i*(Nx+1)+Ny])*(w.c(Nx*dx+.5*dx,i*dy) + w.c(Nx*dx-.5*dx,i*dy));
+	  temp2 = cf_tmp*w.f(Nx*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+Ny] + c_damp*(v_prev[i*(Nx+1)+Ny] - 2*v_now[i*(Nx+1)+Ny]);
+	  v_next[i*(Nx+1)+Ny] = temp0+temp1+temp2;
         }
 }
 
