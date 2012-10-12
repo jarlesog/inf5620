@@ -32,6 +32,7 @@ def openAndPlotFile(filename, t):
     f =open(filename, 'r')
     #Type 1
     Z = np.loadtxt(filename);
+    Z = np.transpose(Z);
     #Type 2
     #f =open(filename, 'r')
     #Filling Z with values from the file

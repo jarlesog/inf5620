@@ -76,8 +76,11 @@ int main(int argc, char* argv[])
   
   waveFunctions w(Lx, Ly, dx, dy, dt);
   
-  if(!w.isStabile()):
+  if(!w.isStabile())
+  {
           cout << "WARNING: CFL condition is not satisfied. c_max*dt*sqrt(1/(dx*dx) + 1/(dy*dy)) = " << w.getCFL() << endl;
+  }
+
   double b = 1.0;
   double *temp_pointer;
   char outfilename[60]; 
