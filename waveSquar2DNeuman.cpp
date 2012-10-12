@@ -142,8 +142,8 @@ void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveF
   //Denne for-loopen gaar kun igjennom de indre punktene
   for(int i = 1; i < Ny; i++){// i is y axis
     for(int j = 1; j < Nx; j++){//j is x axis
-      temp0 = cx_tmp*(w.c(j*dx+dx/2,i*dy)*(v_now[(i+1)*(Nx+1)+j] - v_now[i*(Nx+1)+j]) - w.c(j*dx-dx/2,i*dy)*(v_now[i*(Nx+1)+j] - v_now[(i-1)*(Nx+1)+j]));
-      temp1 = cy_tmp*(w.c(j*dx,i*dy+dy/2)*(v_now[i*(Nx+1)+j+1]   - v_now[i*(Nx+1)+j]) - w.c(j*dx,i*dy-dy/2)*(v_now[i*(Nx+1)+j] - v_now[i*(Nx+1)+j-1]))  ;
+      temp0 = cy_tmp*(w.c(j*dx+dx/2,i*dy)*(v_now[(i+1)*(Nx+1)+j] - v_now[i*(Nx+1)+j]) - w.c(j*dx-dx/2,i*dy)*(v_now[i*(Nx+1)+j] - v_now[(i-1)*(Nx+1)+j]));
+      temp1 = cx_tmp*(w.c(j*dx,i*dy+dy/2)*(v_now[i*(Nx+1)+j+1]   - v_now[i*(Nx+1)+j]) - w.c(j*dx,i*dy-dy/2)*(v_now[i*(Nx+1)+j] - v_now[i*(Nx+1)+j-1]))  ;
       temp2 = cf_tmp*w.f(j*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+j] + c_damp*(v_prev[i*(Nx+1)+j] - 2*v_now[i*(Nx+1)+j]);
 	v_next[i*(Nx+1)+j] = temp0+temp1+temp2;
       }
