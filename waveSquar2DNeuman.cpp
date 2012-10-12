@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
           cout << "WARNING: CFL condition is not satisfied. c_max*dt*sqrt(1/(dx*dx) + 1/(dy*dy)) = " << w.getCFL() << endl;
   }
 
-  double b = 1.0;
+  double b = 0.0;
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
@@ -201,7 +201,7 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
 	temp2 = cf_tmp*w.f(0,0) + c_prev*v_prev[0*(Nx+1)+0] + c_damp*(v_prev[0*(Nx+1)+0] - 2*v_now[0*(Nx+1)+0]);
 	v_next[0*(Nx+1)+0] = temp0+temp1+temp2;
 	//Manualy taking the corner x = Nx, y = Ny
-	temp0 = cy_tmp*(v_now[(Ny-1)*(Nx+1)+Nx]-v_now[Ny*(Nx+1)+NX])*(w.c(Nx,Ny+.5*dy) + w.c(Nx,-.Ny+5*dy));
+	temp0 = cy_tmp*(v_now[(Ny-1)*(Nx+1)+Nx]-v_now[Ny*(Nx+1)+Nx])*(w.c(Nx,Ny+.5*dy) + w.c(Nx,-Ny+.5*dy));
 	temp1 = cx_tmp*(v_now[Ny*(Nx+1)+Nx-1]-v_now[Ny*(Nx+1)+Nx])*(w.c(Nx+.5*dx,Ny) + w.c(Nx-.5*dx,Ny));
 	temp2 = cf_tmp*w.f(Nx,Ny) + c_prev*v_prev[Ny*(Nx+1)+Nx] + c_damp*(v_prev[Ny*(Nx+1)+Nx] - 2*v_now[Ny*(Nx+1)+Nx]);
 	v_next[Ny*(Nx+1)+Nx] = temp0+temp1+temp2;
@@ -267,7 +267,8 @@ double waveFunctions::f(double x, double y )
 double waveFunctions::I(double x, double y)
 {
         double a = 20;
-        return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
+	return 1.;
+        //return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
 }
 
 double waveFunctions::V(double x, double y)
