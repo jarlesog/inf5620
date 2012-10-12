@@ -15,14 +15,6 @@ from scitools.all import *
 Nx = 15; Ny = 15; M = 288; T = 5.0; c = 1; Lx = 1; Ly = 1; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
-CFLlist = [dt/dx, 2*dt/(dx*dx), dt/dy, 2*dt/(dy*dy)]
-Conditionlist = ["wave x", "heat x", "wave y", "heat y"];
-
-for i in range(len(CFLlist)):
-        if(CFLlist[i] > 1):
-                print "bad stability condition on %s: %g should be less than 1" %(Conditionlist[i], CFLlist[i])
-                #sys.exit(True)
-
 
 t_0 = time.time()
 subprocess.call(["./waveSquar2DNeuman.x", str(Nx), str(Ny), str(M), str(T), str(Lx), str(Ly)])
