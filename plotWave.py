@@ -11,7 +11,7 @@ from scitools.all import *
 
 
 #M should b a multipel of 24T
-Nx = 15; Ny = 15; M = 288; T = 5.0; c = 1; Lx = 1; Ly = 1; 
+Nx = 15; Ny = 15; M = 100; T = 1; c = 1; Lx = 1; Ly = 1; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 

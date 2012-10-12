@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
           cout << "WARNING: CFL condition is not satisfied. c_max*dt*sqrt(1/(dx*dx) + 1/(dy*dy)) = " << w.getCFL() << endl;
   }
 
-  double b = 1.0;
+  double b = 0.0;
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
@@ -154,6 +154,9 @@ void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveF
   v_now  = v_next;
   v_next = temp_pointer;
 }
+
+
+
 
 //Sets Neuman boundary condition
 void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, double b,waveFunctions w, double* v_next, double* v_now, double* v_prev)
@@ -243,8 +246,9 @@ double waveFunctions::f(double x, double y )
 
 double waveFunctions::I(double x, double y)
 {
-        double a = 20;
-        return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
+        //double a = 20;
+        //return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
+        return 2.1;
 }
 
 double waveFunctions::V(double x, double y)
