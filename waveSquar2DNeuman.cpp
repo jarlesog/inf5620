@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 //Moves one time step forward
 void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveFunctions w, double* v_next, double* v_now, double* v_prev)
 {
-  double *temp_pointer;
+  //double *temp_pointer;
   //Div constants to save flops
   double cx_tmp = 2*dt*dt/((2+b*dt)*dx*dx);
   double cy_tmp = 2*dt*dt/((2+b*dt)*dy*dy);
@@ -266,8 +266,15 @@ double waveFunctions::f(double x, double y )
 
 double waveFunctions::I(double x, double y)
 {
-        double a = 20;
-	return 1.;
+        //double a = 20;
+        if (0.4<x && x <0.6)
+        {
+                return 1;
+        }
+        else
+        {
+                return 0;
+        }
         //return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
 }
 
