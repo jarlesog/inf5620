@@ -174,10 +174,10 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
 	  v_next[0*(Nx+1)+j] = temp0+temp1+temp2;
 	  
 	  //y = Ly boundary
-	  temp0 = cy_tmp*(v_now[(Nx-1)*(Nx+1)+j]-v_now[Nx*(Nx+1)+j])*(w.c(j*dx,Ny*dy + 0.5*dy) + w.c(j*dx,Ny*dy - 0.5*dy));
-	  temp1 = cx_tmp*(w.c(j*dx+.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j+1]-v_now[Nx*(Nx+1)+j]) - w.c(j*dx-.5*dx,Ny*dy)*(v_now[Nx*(Nx+1)+j]-v_now[Nx*(Nx+1)+j-1]));
-	  temp2 = cf_tmp*w.f(j*dx,Ny*dy) + c_prev*v_prev[Nx*(Nx+1)+j] + c_damp*(v_prev[Nx*(Nx+1)+j] - 2*v_now[Nx*(Nx+1)+j]);
-	  v_next[Nx*(Nx+1)+j] = temp0+temp1+temp2;
+	  temp0 = cy_tmp*(v_now[(Ny-1)*(Nx+1)+j]-v_now[Ny*(Nx+1)+j])*(w.c(j*dx,Ny*dy + 0.5*dy) + w.c(j*dx,Ny*dy - 0.5*dy));
+	  temp1 = cx_tmp*(w.c(j*dx+.5*dx,Ny*dy)*(v_now[Ny*(Nx+1)+j+1]-v_now[Ny*(Nx+1)+j]) - w.c(j*dx-.5*dx,Ny*dy)*(v_now[Ny*(Nx+1)+j]-v_now[Ny*(Nx+1)+j-1]));
+	  temp2 = cf_tmp*w.f(j*dx,Ny*dy) + c_prev*v_prev[Ny*(Nx+1)+j] + c_damp*(v_prev[Ny*(Nx+1)+j] - 2*v_now[Ny*(Nx+1)+j]);
+	  v_next[Ny*(Nx+1)+j] = temp0+temp1+temp2;
         }
 
         //Boundary conditions for x
@@ -189,10 +189,10 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
 	  v_next[i*(Nx+1)+0] = temp0+temp1+temp2;
 	  
 	  //x = Lx boundary
-	  temp0 = cy_tmp*(w.c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Ny]-v_now[i*(Nx+1)+Ny]) - w.c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Ny]-v_now[(i-1)*(Nx+1)+Ny]));
-	  temp1 = cx_tmp*(v_now[i*(Nx+1)+Ny-1]-v_now[i*(Nx+1)+Ny])*(w.c(Nx*dx+.5*dx,i*dy) + w.c(Nx*dx-.5*dx,i*dy));
-	  temp2 = cf_tmp*w.f(Nx*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+Ny] + c_damp*(v_prev[i*(Nx+1)+Ny] - 2*v_now[i*(Nx+1)+Ny]);
-	  v_next[i*(Nx+1)+Ny] = temp0+temp1+temp2;
+	  temp0 = cy_tmp*(w.c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Nx]-v_now[i*(Nx+1)+Nx]) - w.c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Nx]-v_now[(i-1)*(Nx+1)+Nx]));
+	  temp1 = cx_tmp*(v_now[i*(Nx+1)+Nx-1]-v_now[i*(Nx+1)+Nx])*(w.c(Nx*dx+.5*dx,i*dy) + w.c(Nx*dx-.5*dx,i*dy));
+	  temp2 = cf_tmp*w.f(Nx*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+Nx] + c_damp*(v_prev[i*(Nx+1)+Nx] - 2*v_now[i*(Nx+1)+Nx]);
+	  v_next[i*(Nx+1)+Nx] = temp0+temp1+temp2;
         }
 	//disse er implimentert rast, mulig det er noen feil her
 	//Manualy taking the corner x = 0, y = 0
@@ -266,8 +266,8 @@ double waveFunctions::f(double x, double y )
 
 double waveFunctions::I(double x, double y)
 {
-        //double a = 20;
-        if (0.4<x && x <0.6)
+        /*
+        if (0.4<=x && x <0.6)
         {
                 return 1;
         }
@@ -275,7 +275,9 @@ double waveFunctions::I(double x, double y)
         {
                 return 0;
         }
-        //return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
+        */
+        double a = 20;
+        return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
 }
 
 double waveFunctions::V(double x, double y)

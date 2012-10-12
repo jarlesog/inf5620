@@ -11,7 +11,7 @@ from scitools.std import *
 
 
 #M should b a multipel of 24T
-Nx = 15; Ny = 15; M = 200; T = 1; c = 1; Lx = 1; Ly = 1; 
+Nx = 15; Ny = 30; M = 60; T = 1; c = 1; Lx = 1; Ly = 1; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 
@@ -40,7 +40,8 @@ def openAndPlotFile(filename, t):
          shading = 'flat',
 	 #clevels=15,
 	 #clabels='on',
-	 colorbar=[-1,1],
+	 colorbar='on',
+	 caxis = [-1,1],
 	 #view = [-1,1],
          title  = 'Wave equation t = %4.2f' % t,
          axis = [0,Lx,0,Ly,-1,1],
