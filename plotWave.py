@@ -11,7 +11,7 @@ from scitools.std import *
 
 
 #M should b a multipel of 24T
-Nx = 15; Ny = 30; M = 60; T = 1; c = 1; Lx = 1; Ly = 1; 
+Nx = 60; Ny = 60; M = 120; T = 1; c = 1; Lx = 1; Ly = 1; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 
@@ -24,6 +24,21 @@ print 'C++ program done!!! cpu time: ', cpuTime;
 x = np.linspace(0,Lx,Nx+1)
 y = np.linspace(0,Ly,Ny+1)
 xv, yv = ndgrid(x,y)
+exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv
+surf(xv,yv,exact,
+         xlabel = 'x',
+         ylabel = 'y',
+         shading = 'flat',
+	 #clevels=15,
+	 #clabels='on',
+	 colorbar='on',
+	 #caxis = [-0.5,0.5],
+	 #view = [-1,1],
+         axis = [0,Lx,0,Ly,-1,1],
+         show = False,
+	 #rstride=4, #extra
+	 #cstride=4, #extra
+         hardcopy= "exact.png")
 Z = np.zeros((Ny+1,Nx+1))
 
 def openAndPlotFile(filename, t):
@@ -41,7 +56,7 @@ def openAndPlotFile(filename, t):
 	 #clevels=15,
 	 #clabels='on',
 	 colorbar='on',
-	 caxis = [-1,1],
+	 caxis = [0,1/36.],
 	 #view = [-1,1],
          title  = 'Wave equation t = %4.2f' % t,
          axis = [0,Lx,0,Ly,-1,1],
