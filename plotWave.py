@@ -11,7 +11,7 @@ from scitools.std import *
 
 
 #M should b a multipel of 24T
-Nx = 60; Ny = 60; M = 120; T = 1; c = 1; Lx = 1; Ly = 1; 
+Nx = 30; Ny = 30; M = 30; T = 1; c = 1; Lx = 1; Ly = 2; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 
@@ -24,22 +24,17 @@ print 'C++ program done!!! cpu time: ', cpuTime;
 x = np.linspace(0,Lx,Nx+1)
 y = np.linspace(0,Ly,Ny+1)
 xv, yv = ndgrid(x,y)
-exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv
-surf(xv,yv,exact,
-         xlabel = 'x',
-         ylabel = 'y',
-         shading = 'flat',
-	 #clevels=15,
-	 #clabels='on',
-	 colorbar='on',
-	 #caxis = [-0.5,0.5],
-	 #view = [-1,1],
-         axis = [0,Lx,0,Ly,-1,1],
-         show = False,
-	 #rstride=4, #extra
-	 #cstride=4, #extra
-         hardcopy= "exact.png")
 Z = np.zeros((Ny+1,Nx+1))
+errordict = {};
+
+
+def verification(Z,exact,t, tol = 10**(-4)):
+        error = abs(Z-exact)
+        #print error
+        max_error = error.max()
+
+        errordict[t] = max_error
+
 
 def openAndPlotFile(filename, t):
     #Load the datafil into a matrix
@@ -56,7 +51,7 @@ def openAndPlotFile(filename, t):
 	 #clevels=15,
 	 #clabels='on',
 	 colorbar='on',
-	 caxis = [0,1/36.],
+	 caxis = [0,2],
 	 #view = [-1,1],
          title  = 'Wave equation t = %4.2f' % t,
          axis = [0,Lx,0,Ly,-1,1],
@@ -64,6 +59,26 @@ def openAndPlotFile(filename, t):
 	 #rstride=4, #extra
 	 #cstride=4, #extra
          hardcopy= plotfilename)
+
+    #exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv*(0.7*t+0.2)
+    exact = np.ones([Nx+1,Ny+1])*2.1
+    surf(xv,yv,exact,
+         xlabel = 'x',
+         ylabel = 'y',
+         shading = 'flat',
+	 #clevels=15,
+	 #clabels='on',
+	 colorbar='on',
+	 caxis = [0,1/36.],
+	 #view = [-1,1],
+         title  = 'exact solution t = %4.2f' % t,
+         axis = [0,Lx,0,Ly,-1,1],
+         show = False,
+	 #rstride=4, #extra
+	 #cstride=4, #extra
+         hardcopy= "plots/exact_t%4.2f.png" % t)
+
+    verification(Z,exact,t)
     return plotfilename
 
 
@@ -89,11 +104,11 @@ os.mkdir(plotdir);
 for filename in listOfFile:
 	#Remove all files that are not data files.
 	if filename[:19+len(str(Nx))+len(str(Nx))] != 'wave_squar_2D_Nx' + str(Nx) + '_Ny' + str(Ny):
-		print 'ignorering:', filename
+		#print 'ignorering:', filename
 		pass
 		#listOfFile.remove(filename);
 	else:
-		print 'Useing datafile:', filename;
+		#print 'Useing datafile:', filename;
 		##Potensial feil telling
 		t = float(filename[(23+len(str(Nx))+len(str(Ny))+len(str(M))):-4]);
 		#Make plot from datafile
@@ -116,6 +131,9 @@ os.chdir(plotdir)
 ##    pass
 ##print "end time!"
 
-movie('plotWave_*.png', fps = 12, quiet = True)
+#movie('plotWave_*.png', fps = 12, quiet = True)
 #
+a = sorted(errordict.keys())
+for i in a:
+        print "error t = %4.2f: %g" %(i, errordict[i])
 print 'program time: ', time.time()-t_0;

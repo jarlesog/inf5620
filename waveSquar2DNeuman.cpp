@@ -20,7 +20,7 @@ class waveFunctions
         public:
                 waveFunctions(double Lx, double Ly, double dx, double dy, double dt);
                 double c(double x, double y);
-                double f(double x, double y);
+                double f(double x, double y, double t);
                 double I(double x, double y);
                 double V(double x, double y);
                 double getCFL();
@@ -33,9 +33,9 @@ class waveFunctions
 
 ofstream ofile;
 
-void interate_v(int,int, double, double, double, double, waveFunctions, double *,double *,double *);
+void interate_v(int,int, double, double, double, int, double, waveFunctions, double *,double *,double *);
 void create_initial_v(int, int, double, double, double, double, double, waveFunctions, double *, double *);
-void neuman_boundary_cond(int, int, double, double, double, double, waveFunctions, double*, double*, double*);
+void neuman_boundary_cond(int, int, double, double, double, int n, double, waveFunctions, double*, double*, double*);
 void printToFile(int, int, char *, double *);
 
 
@@ -92,14 +92,14 @@ int main(int argc, char* argv[])
   create_initial_v(Nx, Ny, dx, dy, dt, Lx, Ly, w, v_now, v_prev);
 
   //Write the IC to a file 
-  sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%4.2f.dat", Nx, Ny, M, 0*dt);
+  sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%13.11f.dat", Nx, Ny, M, 0*dt);
   printToFile(Nx,Ny, outfilename, v_now);
 
   //Main Loop:
   //For each interation it move one timestep dt forward
   for (int i=1; i <= M;i++){
-    interate_v(Nx, Ny, dx, dy, dt, b,w, v_next,v_now,v_prev);
-    neuman_boundary_cond(Nx, Ny, dx, dy, dt, b,w, v_next, v_now, v_prev);
+    interate_v(Nx, Ny, dx, dy, dt, i, b, w, v_next,v_now,v_prev);
+    neuman_boundary_cond(Nx, Ny, dx, dy, dt, i, b, w, v_next, v_now, v_prev);
     //updateing pointers
     temp_pointer = v_prev;
     v_prev = v_now;
@@ -112,9 +112,10 @@ int main(int argc, char* argv[])
     //I don't need to make plot of all the interations
     //so i use 24 frames per seconds(to save run-time 
     //and space.
-    if(i%ff == 0){
-      sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%4.2f.dat", Nx, Ny,M, i*dt);
-      printToFile(Nx, Ny, outfilename, v_now);}
+    cout << i*dt << endl;
+    //if(i%ff == 0){
+      sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%13.11f.dat", Nx, Ny,M, i*dt);
+      printToFile(Nx, Ny, outfilename, v_now);//}
   }
 
   //Clean up
@@ -128,7 +129,7 @@ int main(int argc, char* argv[])
 
 
 //Moves one time step forward
-void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveFunctions w, double* v_next, double* v_now, double* v_prev)
+void interate_v(int Nx, int Ny, double dx, double dy, double dt, int n, double b, waveFunctions w, double* v_next, double* v_now, double* v_prev)
 {
   //double *temp_pointer;
   //Div constants to save flops
@@ -137,6 +138,7 @@ void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveF
   double cf_tmp = (2*dt*dt)/(2 + b*dt);
   double c_damp = -2/(2+b*dt);
   double c_prev = b*dt/(2+b*dt);
+  double tn = dt*n;
   double temp0, temp1, temp2;
   //Create/fill the v_new vector/matrix 
   //Denne for-loopen gaar kun igjennom de indre punktene
@@ -144,7 +146,7 @@ void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveF
     for(int j = 1; j < Nx; j++){//j is x axis
       temp0 = cy_tmp*(w.c(j*dx+dx/2,i*dy)*(v_now[(i+1)*(Nx+1)+j] - v_now[i*(Nx+1)+j]) - w.c(j*dx-dx/2,i*dy)*(v_now[i*(Nx+1)+j] - v_now[(i-1)*(Nx+1)+j]));
       temp1 = cx_tmp*(w.c(j*dx,i*dy+dy/2)*(v_now[i*(Nx+1)+j+1]   - v_now[i*(Nx+1)+j]) - w.c(j*dx,i*dy-dy/2)*(v_now[i*(Nx+1)+j] - v_now[i*(Nx+1)+j-1]))  ;
-      temp2 = cf_tmp*w.f(j*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+j] + c_damp*(v_prev[i*(Nx+1)+j] - 2*v_now[i*(Nx+1)+j]);
+      temp2 = cf_tmp*w.f(j*dx,i*dy,tn) + c_prev*v_prev[i*(Nx+1)+j] + c_damp*(v_prev[i*(Nx+1)+j] - 2*v_now[i*(Nx+1)+j]);
 	v_next[i*(Nx+1)+j] = temp0+temp1+temp2;
       }
   }
@@ -156,13 +158,14 @@ void interate_v(int Nx, int Ny, double dx, double dy, double dt, double b, waveF
 }
 
 //Sets Neuman boundary condition
-void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, double b,waveFunctions w, double* v_next, double* v_now, double* v_prev)
+void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, int n, double b,waveFunctions w, double* v_next, double* v_now, double* v_prev)
 {
         double cx_tmp = 2*dt*dt/((2+b*dt)*dx*dx);
         double cy_tmp = 2*dt*dt/((2+b*dt)*dy*dy);
         double cf_tmp = (2*dt*dt)/(2 + b*dt);
         double c_damp = -2/(2+b*dt);
         double c_prev = b*dt/(2+b*dt);
+        double tn = dt*n;
 	double temp0, temp1, temp2;
         
         //Boundary conditions for y
@@ -170,13 +173,13 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
 	  //y = 0 boundary;
 	  temp0 = cy_tmp*(v_now[1*(Nx+1)+j]-v_now[0*(Nx+1)+j])*(w.c(j*dx,.5*dy) + w.c(j*dx,-.5*dy));
 	  temp1 = cx_tmp*(w.c(j*dx+0.5*dx,0)*(v_now[0*(Nx+1)+j+1]-v_now[0*(Nx+1)+j]) - w.c(j*dx-0.5*dx,0)*(v_now[0*(Nx+1)+j]-v_now[0*(Nx+1)+j-1]));
-	  temp2 = cf_tmp*w.f(j*dx,0) + c_prev*v_prev[0*(Nx+1)+j] + c_damp*(v_prev[0*(Nx+1)+j] - 2*v_now[0*(Nx+1)+j]);
+	  temp2 = cf_tmp*w.f(j*dx,0,tn) + c_prev*v_prev[0*(Nx+1)+j] + c_damp*(v_prev[0*(Nx+1)+j] - 2*v_now[0*(Nx+1)+j]);
 	  v_next[0*(Nx+1)+j] = temp0+temp1+temp2;
 	  
 	  //y = Ly boundary
 	  temp0 = cy_tmp*(v_now[(Ny-1)*(Nx+1)+j]-v_now[Ny*(Nx+1)+j])*(w.c(j*dx,Ny*dy + 0.5*dy) + w.c(j*dx,Ny*dy - 0.5*dy));
 	  temp1 = cx_tmp*(w.c(j*dx+.5*dx,Ny*dy)*(v_now[Ny*(Nx+1)+j+1]-v_now[Ny*(Nx+1)+j]) - w.c(j*dx-.5*dx,Ny*dy)*(v_now[Ny*(Nx+1)+j]-v_now[Ny*(Nx+1)+j-1]));
-	  temp2 = cf_tmp*w.f(j*dx,Ny*dy) + c_prev*v_prev[Ny*(Nx+1)+j] + c_damp*(v_prev[Ny*(Nx+1)+j] - 2*v_now[Ny*(Nx+1)+j]);
+	  temp2 = cf_tmp*w.f(j*dx,Ny*dy,tn) + c_prev*v_prev[Ny*(Nx+1)+j] + c_damp*(v_prev[Ny*(Nx+1)+j] - 2*v_now[Ny*(Nx+1)+j]);
 	  v_next[Ny*(Nx+1)+j] = temp0+temp1+temp2;
         }
 
@@ -185,13 +188,13 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
 	  //x = 0 boundary
 	  temp0 = cy_tmp*(w.c(0,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+0]-v_now[i*(Nx+1)+0]) - w.c(0,i*dy-.5*dy)*(v_now[i*(Nx+1)+0]-v_now[(i-1)*(Nx+1)+0]));
 	  temp1 = cx_tmp*(v_now[i*(Nx+1)+1]-v_now[i*(Nx+1)+0])*(w.c(.5*dx,i*dy) + w.c(-.5*dx,i*dy));
-	  temp2 = cf_tmp*w.f(0,i*dy) + c_prev*v_prev[i*(Nx+1)+0] + c_damp*(v_prev[i*(Nx+1)+0] - 2*v_now[i*(Nx+1)+0]);
+	  temp2 = cf_tmp*w.f(0,i*dy,tn) + c_prev*v_prev[i*(Nx+1)+0] + c_damp*(v_prev[i*(Nx+1)+0] - 2*v_now[i*(Nx+1)+0]);
 	  v_next[i*(Nx+1)+0] = temp0+temp1+temp2;
 	  
 	  //x = Lx boundary
 	  temp0 = cy_tmp*(w.c(Nx*dx,i*dy+.5*dy)*(v_now[(i+1)*(Nx+1)+Nx]-v_now[i*(Nx+1)+Nx]) - w.c(Nx*dx,i*dy-.5*dy)*(v_now[i*(Nx+1)+Nx]-v_now[(i-1)*(Nx+1)+Nx]));
 	  temp1 = cx_tmp*(v_now[i*(Nx+1)+Nx-1]-v_now[i*(Nx+1)+Nx])*(w.c(Nx*dx+.5*dx,i*dy) + w.c(Nx*dx-.5*dx,i*dy));
-	  temp2 = cf_tmp*w.f(Nx*dx,i*dy) + c_prev*v_prev[i*(Nx+1)+Nx] + c_damp*(v_prev[i*(Nx+1)+Nx] - 2*v_now[i*(Nx+1)+Nx]);
+	  temp2 = cf_tmp*w.f(Nx*dx,i*dy,tn) + c_prev*v_prev[i*(Nx+1)+Nx] + c_damp*(v_prev[i*(Nx+1)+Nx] - 2*v_now[i*(Nx+1)+Nx]);
 	  v_next[i*(Nx+1)+Nx] = temp0+temp1+temp2;
         }
 
@@ -199,25 +202,25 @@ void neuman_boundary_cond(int Nx, int Ny, double dx, double dy, double dt, doubl
 	//Manualy taking the corner x = 0, y = 0
 	temp0 = cy_tmp*(v_now[1*(Nx+1)+0]-v_now[0*(Nx+1)+0])*(w.c(0*dx,.5*dy) + w.c(0*dx,-.5*dy));
 	temp1 = cx_tmp*(v_now[0*(Nx+1)+1]-v_now[0*(Nx+1)+0])*(w.c(.5*dx,0*dy) + w.c(-.5*dx,0*dy));
-	temp2 = cf_tmp*w.f(0*dx,0*dy) + c_prev*v_prev[0*(Nx+1)+0] + c_damp*(v_prev[0*(Nx+1)+0] - 2*v_now[0*(Nx+1)+0]);
+	temp2 = cf_tmp*w.f(0*dx,0*dy,tn) + c_prev*v_prev[0*(Nx+1)+0] + c_damp*(v_prev[0*(Nx+1)+0] - 2*v_now[0*(Nx+1)+0]);
 	v_next[0*(Nx+1)+0] = temp0+temp1+temp2;
 
 	//Manualy taking the corner x = Nx, y = Ny
 	temp0 = cy_tmp*(v_now[(Ny-1)*(Nx+1)+Nx]-v_now[Ny*(Nx+1)+Nx])*(w.c(Nx*dx,Ny*dy+.5*dy) + w.c(Nx*dx,Ny*dy-.5*dy));
 	temp1 = cx_tmp*(v_now[Ny*(Nx+1)+Nx-1]-v_now[Ny*(Nx+1)+Nx])*(w.c(Nx*dx+.5*dx,Ny*dy) + w.c(Nx*dx-.5*dx,Ny*dy));
-	temp2 = cf_tmp*w.f(Nx*dx,Ny*dy) + c_prev*v_prev[Ny*(Nx+1)+Nx] + c_damp*(v_prev[Ny*(Nx+1)+Nx] - 2*v_now[Ny*(Nx+1)+Nx]);
+	temp2 = cf_tmp*w.f(Nx*dx,Ny*dy,tn) + c_prev*v_prev[Ny*(Nx+1)+Nx] + c_damp*(v_prev[Ny*(Nx+1)+Nx] - 2*v_now[Ny*(Nx+1)+Nx]);
 	v_next[Ny*(Nx+1)+Nx] = temp0+temp1+temp2;
 
 	//Manualy taking the corner x = Nx, y = 0
 	temp0 = cy_tmp*(v_now[1*(Nx+1)+Nx]-v_now[0*(Nx+1)+Nx])*(w.c(Nx*dx,.5*dy) + w.c(Nx*dx,-.5*dy));
 	temp1 = cx_tmp*(v_now[0*(Nx+1)+Nx-1]-v_now[0*(Nx+1)+Nx])*(w.c(Nx*dx+.5*dx,0) + w.c(Nx*dx-.5*dx,0));
-	temp2 = cf_tmp*w.f(Nx*dx,0*dy) + c_prev*v_prev[0*(Nx+1)+Nx] + c_damp*(v_prev[0*(Nx+1)+Nx] - 2*v_now[0*(Nx+1)+Nx]);
+	temp2 = cf_tmp*w.f(Nx*dx,0*dy,tn) + c_prev*v_prev[0*(Nx+1)+Nx] + c_damp*(v_prev[0*(Nx+1)+Nx] - 2*v_now[0*(Nx+1)+Nx]);
 	v_next[0*(Nx+1)+Nx] = temp0+temp1+temp2;	
 
 	//Manualy taking the corner x = 0, y = Ny
 	temp0 = cy_tmp*(v_now[(Ny-1)*(Nx+1)+0]-v_now[Ny*(Nx+1)+0])*(w.c(0*dx,Ny*dy+.5*dy) + w.c(0*dx,Ny*dy-.5*dy));
 	temp1 = cx_tmp*(v_now[Ny*(Nx+1)+1]-v_now[Ny*(Nx+1)+0])*(w.c(.5*dx,Ny*dy) + w.c(-.5*dx,Ny*dy));
-	temp2 = cf_tmp*w.f(0,Ny*dy) + c_prev*v_prev[Ny*(Nx+1)+0] + c_damp*(v_prev[Ny*(Nx+1)+0] - 2*v_now[Ny*(Nx+1)+0]);
+	temp2 = cf_tmp*w.f(0,Ny*dy,tn) + c_prev*v_prev[Ny*(Nx+1)+0] + c_damp*(v_prev[Ny*(Nx+1)+0] - 2*v_now[Ny*(Nx+1)+0]);
 	v_next[Ny*(Nx+1)+0] = temp0+temp1+temp2;
 
 	
@@ -231,7 +234,8 @@ void create_initial_v(int Nx, int Ny, double dx, double dy, double dt, double Lx
     for(int j = 0; j < Nx+1; j++){
       v_now[i*(Nx+1)+j] = w.I(dx*j,dy*i);
       v_prev[i*(Nx+1)+j] = v_now[i*(Nx+1)+j] - dt*w.V(j*dx,i*dy);//Backward Euler
-    }}
+    }
+  }
 }
 
 
@@ -263,32 +267,31 @@ double waveFunctions::c(double x, double y )
         return 1.0;
 }
 
-double waveFunctions::f(double x, double y )
+double waveFunctions::f(double x, double y, double t)
 {
-        //return 0;
-        return (Lx-2*x)*(1/3.*y - Ly/2)*y*y + (Ly-2*y)*(1/3.*x - Lx/2)*x*x;
+        return 0;
+        //return (Lx-2*x)*(1/3.*y - Ly/2)*y*y*(0.7*t + 0.2) + (Ly-2*y)*(1/3.*x - Lx/2)*x*x*(0.7*t + 0.2);
 }
 
 double waveFunctions::I(double x, double y)
 {
-        /*
-        if (0.4<=x && x <0.6)
+        if (x<=0.1)
         {
-                return 1;
+                return 2;
         }
         else
         {
                 return 0;
         }
-        */
         //double a = 20;
         //return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
-        return (1/3.*x - Lx/2)*x*x*(1/3.*y - Ly/2)*y*y;
+        //return (1/3.*x - Lx/2)*x*x*(1/3.*y - Ly/2)*y*y*0.2;
 }
 
 double waveFunctions::V(double x, double y)
 {
         return 0;
+        //return (1/3.*x - Lx/2)*x*x*(1/3.*y - Ly/2)*y*y*0.7;
 }
 
 double waveFunctions::getCFL()
