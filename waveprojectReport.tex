@@ -1,0 +1,93 @@
+\documentclass[12pt,a4paper,english]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc} %for å bruke æ,ø,å
+\usepackage{graphicx}%for å inkludere grafikk
+\usepackage{verbatim} %for å inkludere filer med tegn LaTeX ikke liker
+\usepackage{babel,url}
+\usepackage{amsmath}
+
+\bibliographystyle{plain}
+
+\title{INF5620 Project: 2D wave equation}
+\author{Håkon Østerbø og Jarle Sogn\\ Institutt for matematikk\\
+Universitetet i Oslo\\ \url{haakonoo@math.uio.no} \\ \url{jarlesog@math.uio.no}}
+
+\begin{document}
+\maketitle
+
+%\begin{abstract}
+%\end{abstract}
+
+\section*{Introduction}
+The goal for this project is to solve the two-dimensional, standard, linear wave equation with damping by an explicit numeric scheme(see equation \ref{eq:mainwave}). With the Neumann boundary condition $\frac{\partial u}{\partial n} = 0$. The initial condition are shown in equation \ref{eq:initialI} and \ref{eq:initialV}. We consider a rectangular domain $\left[ 0,L_x\right] \times \left[0,L_y \right] $.
+
+\begin{equation}
+\frac{\partial^2 u}{\partial t^2} + b\frac{\partial u}{\partial t} = \frac{\partial}{\partial x}\left(  q\left( x,y\right) \frac{\partial u}{\partial x}\right) +\frac{\partial}{\partial y}\left(  q\left( x,y\right) \frac{\partial u}{\partial y}\right) + f\left( x,y,t\right)
+\label{eq:mainwave}
+\end{equation}
+
+\begin{equation}
+u\left( x,y,0\right) = I\left( x,y\right)  
+\label{eq:initialI}
+\end{equation}
+
+\begin{equation}
+u_t \left( x,y,0\right) = V\left( x,y\right)  
+\label{eq:initialV}
+\end{equation}
+
+As our extension of the project, we solve the problem in a C++ program. All calculation are done in C++ and then the program writes the data to files. For simplicity we have made a python script then calls the C++ program and plots the data files. After it's done it delete the data files.
+
+\subsection*{Structure of the C++ program}
+\subsection*{Stability criteria}
+\begin{equation}
+1 \geq c\Delta t \left(\frac{1}{\Delta x^2} + \frac{1}{\Delta y^2}\right)^{\frac{1}{2}} 
+\label{eq:stability_crit}
+\end{equation}
+
+
+\section{Verification}
+All numeric schemes and implementation should be verified and ours is no exception. There are several different ways of verifying. What's important to have in mind is that the PDE can be simplified by changing the parameters, this is both a good and a bad thing. For example by setting $b = 0$, the PDE no longer have a damping effect. It's now more easy to preform verification tests. However if we forget to test for $b \neq 0$, we will not know if the damping is implemented correctly. We should also test for $L_x \neq L_y$, $N_x \neq N_y$ and $f(x,y), q(x,y) \neq cont$ to make a thoroughly verification.
+\subsection{Constant solution}
+
+By setting $I\left( x,y\right) = 1$, $V\left( x,y\right)$ and $f\left( x,y,t\right) = 0$. We easily see from equation \ref{eq:mainwave} that $u\left( x,y,t\right) = 1$, hence a constant solution. When we simulated this, we ran into problem at the corners that where not equal to one. This verification test quickly reviled that our corner point($u_{0,0}$, $u_{N_x,0}$, $u_{N_x,N_y}$ and $u_{0,N_Y}$) where not being updated correctly.   
+
+\subsection{Exact 1D solution}
+To obtain a exact 1D solution, we set $I\left( x,y\right) = 1$ for $x \in \left[0.4 , 0.6\right]$ and zero elsewhere. We also set $c\frac{\Delta t}{\Delta x} = 1$. This solution is independent of y(similar thing can be done for y and then the solution is independent of x). After doing this, we discovered some new bugs(we mixed $Nx$ and $Ny$ some places in the code) and debugged them. 
+
+\subsection{Standing wave}
+
+\subsection{Manufactured solution}
+In this verification method we normally chose a linear function $I\left( x,y\right)$ that satisfy the B.C. and is a stationary solution $u\left( x,y\right)$. Then we calculate what $f\left( x,y\right)$ have to be in order to obtain the stationary solution $u\left( x,y\right) = I\left( x,y\right)$. We don't have any time dependence is this problem, so we are actually just solving the Poisson equation. If there is an error, it must then be in the right part of equation \ref{eq:mainwave}. Since we are working with Neumann B.C and not Dirichlet B.C. a linear $I\left( x,y\right)$ will not work. We have to use a cubic $I\left( x,y\right)$ to satisfy the B.C., see equation \ref{eq:ImanuSta}.
+
+%hvis at dette Diffrentsierer nøyattig med endelig h
+\begin{equation}
+I\left( x,y\right) = \left( \frac{x}{3} -\frac{L_x}{2}\right)x^2\left(\frac{y}{3} -\frac{L_y}{2} \right) y^2 
+\label{eq:ImanuSta}
+\end{equation}
+We should check if this give us exact numeric differentiation. For the $\frac{\partial^2 f}{\partial x^2}$ we used this scheme:
+$$ \frac{\partial^2 f}{\partial x^2} \approx \frac{f\left( x + h\right) - 2f\left( x\right) + f\left( x - h\right)}{h^2}$$
+By inserting $f\left( x\right) = x^3$ we get:
+$$\frac{x^3 + 3x^2h + 3xh^2 + h^3 - 2x^3 + x^3 -3x^2h + 3xh^2 -h^3}{h^2} = 6x$$
+witch is the exact solution(we do the same for $x$ and $x^2$). We also use center difference at the boundary. 
+$$\frac{\partial f}{\partial x} \approx \frac{f\left(x + h\right) - f\left( x - h\right)}{2h} $$ 
+$$\frac{x^3 + 3x^2h + 3xh^2 + h^3 - x^3 + 3x^2h - 3xh^2 +h^3}{2h} = 3x^2 +h^2 $$
+
+This is not exactly equal to the analytical. Our numeric solution should then be equal to the analytic to machine in the interior at $t=0$. The center of the domain will also be exact for low values of t. Last ting to do now is to find $f\left( x,y\right)$ that gives us the wanted solution:
+
+$$f\left( x,y\right) = \left(L_x -2x \right) \left(\frac{y}{3} -\frac{L_y}{2} \right)y^2 + \left(L_y -2y \right) \left(\frac{x}{3} -\frac{L_x}{2} \right)x^2 $$
+
+As I mention above: We only verify the Poisson equation, since this is a stationary solution. If we use the same $u\left( x,y,t\right)$ and multiply with $0.7t +0.2$, we get a non-stationary manufactured solution. $I\left( x,y\right)$ is then equation \ref{eq:ImanuSta} multiplied with $0.2$. $V\left( x,y\right)$ is then equation \ref{eq:ImanuSta} multiplied with $0.7$. $f\left( x,y\right) = bu_t - u_{xx} - u_{yy}$.
+
+$$f\left( x,y\right) =\left( \frac{x}{3} -\frac{L_x}{2}\right)x^2\left(\frac{y}{3} -\frac{L_y}{2} \right) y^2 \left[ 0.7b - \left( 0.7t + 0.2\right) \left( \frac{2x-L_x}{\frac{x}{3} -\frac{L_x}{2}x^2} + \frac{2y-L_y}{\frac{y}{3} -\frac{L_y}{2} y^2}  \right) \right] $$
+
+I the code we used backward Euler $u_t\left(x,y,t\right) \approx \frac{u\left(x,y,t\right) - u\left(x,y,t-\Delta t \right)} {\Delta t}$. It can easily be verified that this give a exact differentiation for our chose of $u\left(x,y,t\right)$. 
+
+
+
+%\ref{eq:Dligning}
+
+%\begin{center}
+%174 333 371 902 042 752
+%\end{center}
+\end{document}
