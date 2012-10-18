@@ -11,7 +11,7 @@ from scitools.std import *
 
 
 #M should b a multipel of 24T
-Nx = 30; Ny = 30; M = 30; T = 1; c = 1; Lx = 1; Ly = 2; 
+Nx = 30; Ny = 30; M = 60; T = 1; c = 1; Lx = 1; Ly = 1; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 
@@ -51,7 +51,7 @@ def openAndPlotFile(filename, t):
 	 #clevels=15,
 	 #clabels='on',
 	 colorbar='on',
-	 caxis = [0,2],
+	 caxis = [0,1/36.],
 	 #view = [-1,1],
          title  = 'Wave equation t = %4.2f' % t,
          axis = [0,Lx,0,Ly,-1,1],
@@ -60,8 +60,8 @@ def openAndPlotFile(filename, t):
 	 #cstride=4, #extra
          hardcopy= plotfilename)
 
-    #exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv*(0.7*t+0.2)
-    exact = np.ones([Nx+1,Ny+1])*2.1
+    exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv
+    #exact = np.ones([Nx+1,Ny+1])*2.1
     surf(xv,yv,exact,
          xlabel = 'x',
          ylabel = 'y',
