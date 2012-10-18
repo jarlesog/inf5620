@@ -18,7 +18,7 @@ using namespace std;
 class waveFunctions
 {
         public:
-                waveFunctions(double Lx, double Ly, double dx, double dy, double dt, double b);
+  waveFunctions(double Lx, double Ly, double dx, double dy, double dt, double b);
                 double c(double x, double y);
                 double f(double x, double y, double t);
                 double I(double x, double y);
@@ -28,8 +28,7 @@ class waveFunctions
         private:
                 double Lx; double Ly;
                 double dx; double dy; double dt;
-                double max_c;
-                double b;
+  double max_c; double b;
 };
 
 ofstream ofile;
@@ -83,6 +82,7 @@ int main(int argc, char* argv[])
           cout << "WARNING: CFL condition is not satisfied. c_max*dt*sqrt(1/(dx*dx) + 1/(dy*dy)) = " << w.getCFL() << endl;
   }
 
+  //double b = 0.0;
   double *temp_pointer;
   char outfilename[60]; 
   int ff   = 1; //Frame frevense
@@ -113,6 +113,7 @@ int main(int argc, char* argv[])
     //I don't need to make plot of all the interations
     //so i use 24 frames per seconds(to save run-time 
     //and space.
+    //cout << i*dt << endl;
     //if(i%ff == 0){
       sprintf(outfilename, "wave_squar_2D_Nx%d_Ny%d_M%d_t%13.11f.dat", Nx, Ny,M, i*dt);
       printToFile(Nx, Ny, outfilename, v_now);//}
@@ -259,47 +260,41 @@ waveFunctions::waveFunctions(double Lxin, double Lyin, double dxin, double dyin,
 {
         Lx = Lxin; Ly = Lyin; 
         dx = dxin; dy = dyin; dt = dtin;
-        max_c = 1;
-        b = bin;
+        max_c = 1; b = bin;
 }
 
 double waveFunctions::c(double x, double y )
 {
-        return 1.0;
+        return 1.;
 }
 
 double waveFunctions::f(double x, double y, double t)
 {
-        //return 0;
-        return (Lx-2*x)*(1/3.*y - Ly/2)*y*y*(0.7*t + 0.2) + (Ly-2*y)*(1/3.*x - Lx/2)*x*x*(0.7*t + 0.2);
-        //return (Lx-2*x)*(1/3.*y - Ly/2)*y*y + (Ly-2*y)*(1/3.*x - Lx/2)*x*x;
+  //return 0;
+  //return (Lx-2*x)*(y/3. - Ly/2.)*y*y*(0.7*t + 0.2) + (Ly-2*y)*(x/3. - Lx/2.)*x*x*(0.7*t + 0.2) \
+    //  - b*(1/3.*x - Lx/2.)*x*x*(1/3.*y - Ly/2.)*y*y*0.7;
+  return (Lx-2*x)*(y/3. - Ly/2.)*y*y + (Ly-2*y)*(x/3. - Lx/2.)*x*x;
 }
 
 double waveFunctions::I(double x, double y)
 {
-        /*
-        if (x<=0.1)
+  /*if (x<=0.1)
         {
                 return 2;
         }
         else
         {
                 return 0;
-        }
-        */
+		}*/
         //double a = 20;
         //return exp(-a*((x-0.5*Lx)*(x-0.5*Lx) + (y-0.5*Ly)*(y-0.5*Ly)));
-        return (1/3.*x - Lx/2)*x*x*(1/3.*y - Ly/2)*y*y*0.2;
-        //int mx = 2; int my = 2;
-        //return cos(mx*pi*x/Lx)*cos(my*pi*y/Ly)
+  return (x/3. - Lx/2.)*x*x*(y/3. - Ly/2.)*y*y;
 }
 
 double waveFunctions::V(double x, double y)
 {
-        //return 0;
-        return (1/3.*x - Lx/2)*x*x*(1/3.*y - Ly/2)*y*y*0.7;
-        //int mx = 2; int my = 2;
-        //return -b*cos(mx*pi*x/Lx)*cos(my*pi*y/Ly)
+  return 0;
+  //return (1/3.*x - Lx/2.)*x*x*(1/3.*y - Ly/2.)*y*y*0.7;
 }
 
 double waveFunctions::getCFL()

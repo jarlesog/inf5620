@@ -6,12 +6,13 @@ import subprocess
 import time
 import shutil
 import numpy as np
-from scitools.std import *
+from scitools.all import *
 
 
 
 #M should b a multipel of 24T
-Nx = 30; Ny = 30; M = 60; T = 1; c = 1; Lx = 1; Ly = 1; 
+Nx = 30; Ny = 30; M = 60; T = 1; c = 1.; Lx = 1; Ly = 1
+#Lx = 7.113786609; Ly = 7.113786609; 
 
 dx = Lx/float(Nx); dy = Ly/float(Ny); dt = T/float(M);
 
@@ -29,10 +30,12 @@ errordict = {};
 
 
 def verification(Z,exact,t, tol = 10**(-4)):
-        error = abs(Z-exact)
+	#error = abs(Z-exact)
+	error = abs((Z[10:-10,10:-10]-exact[10:-10,10:-10])/exact[10:-10,10:-10])
         #print error
-        max_error = error.max()
-
+        #max_error = error.max()
+	#avrage rel error
+	max_error = sum(error)/(len(error)*len(error[0]))
         errordict[t] = max_error
 
 
@@ -51,7 +54,7 @@ def openAndPlotFile(filename, t):
 	 #clevels=15,
 	 #clabels='on',
 	 colorbar='on',
-	 caxis = [0,1/36.],
+	 caxis = [0,1./36],
 	 #view = [-1,1],
          title  = 'Wave equation t = %4.2f' % t,
          axis = [0,Lx,0,Ly,-1,1],
@@ -60,7 +63,7 @@ def openAndPlotFile(filename, t):
 	 #cstride=4, #extra
          hardcopy= plotfilename)
 
-    exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv
+    exact = (1/3.*xv - Lx/2.)*xv*xv*(1/3.*yv-Ly/2.)*yv*yv#*(0.7*t+0.2)
     #exact = np.ones([Nx+1,Ny+1])*2.1
     surf(xv,yv,exact,
          xlabel = 'x',
@@ -71,7 +74,7 @@ def openAndPlotFile(filename, t):
 	 colorbar='on',
 	 caxis = [0,1/36.],
 	 #view = [-1,1],
-         title  = 'exact solution t = %4.2f' % t,
+         title  = 'exact solution t = %4.8f' % t,
          axis = [0,Lx,0,Ly,-1,1],
          show = False,
 	 #rstride=4, #extra
@@ -118,7 +121,6 @@ for filename in listOfFile:
 		#Delete plot in current directory
 		os.remove(os.path.join(orgdir, plotfilename));
 		#Delete the datafiles
-		##IKKE bruk denne kommandoen fÃžr du er sikker pÃ¥ at if testen er korrekt
 		os.remove(os.path.join(orgdir, filename));
 
 #change directory to where the plots are
@@ -133,6 +135,8 @@ os.chdir(plotdir)
 
 #movie('plotWave_*.png', fps = 12, quiet = True)
 #
+
+
 a = sorted(errordict.keys())
 for i in a:
         print "error t = %4.2f: %g" %(i, errordict[i])
